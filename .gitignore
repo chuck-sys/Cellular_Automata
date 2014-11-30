@@ -1,0 +1,5 @@
+# All object files
+obj/*
+
+# All executables
+Cellular_Automata
