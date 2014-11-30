@@ -39,11 +39,31 @@ void quit_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
-		{"&File", 0, 0, 0, FL_SUBMENU},
+	{"&File", 0, 0, 0, FL_SUBMENU},
 		{"&Save Board", 0, not_implemented},
-		{"&Open Board", 0, not_implemented, 0, FL_MENU_DIVIDER},
+		{"Save Stamp", 0, not_implemented},
+		{"&Load Board", 0, not_implemented},
+		{"Load Stamp", 0, not_implemented, 0, FL_MENU_DIVIDER},
 		{"E&xit", 0, quit_cb},
-		{0}
+		{0},
+	{"&Select", 0, 0, 0, FL_SUBMENU},
+		{"Drag Mode", 0, not_implemented, 0, FL_MENU_TOGGLE | FL_MENU_VALUE | FL_MENU_DIVIDER},
+		{"Random Tiles", 0, not_implemented},
+		{"Reset Tiles", 0, not_implemented},
+		{0},
+	{"Stamps", 0, 0, 0, FL_SUBMENU},
+		{"Still Life", 0, 0, 0, FL_SUBMENU},
+			{0},
+		{"Oscillators", 0, 0, 0, FL_SUBMENU},
+			{0},
+		{"Spaceships", 0, 0, 0, FL_SUBMENU},
+			{0},
+		{0},
+	{"&Rules", 0, 0, 0, FL_SUBMENU},
+		{"Game of Life", 0, not_implemented, 0, FL_MENU_VALUE | FL_MENU_RADIO},
+		{"HighLife", 0, not_implemented, 0, FL_MENU_RADIO},
+		{"Maze", 0, not_implemented, 0, FL_MENU_RADIO},
+		{0},
 };
 
 int main(int argc, char* argv[])
