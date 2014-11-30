@@ -12,6 +12,7 @@
 // Initialize the static values
 int Tile::AliveCol = FL_GREEN;
 int Tile::DeadCol = FL_BLACK;
+bool Tile::DragMode = false;
 
 Tile::Tile(int x, int y, int w, int h, char* l):
 	Fl_Button(x, y, w, h, l)
@@ -27,6 +28,15 @@ int Tile::handle(int event)
 	case FL_RELEASE:
 		this->do_callback();
 		return 1;
+	case FL_ENTER:
+		if(Tile::DragMode)
+		{
+			// If the program is in drag mode
+			this->do_callback();
+			return 1;
+		}
+		else
+			return 0;
 	default:
 		return 0;
 	}

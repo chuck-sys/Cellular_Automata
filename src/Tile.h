@@ -19,6 +19,7 @@ private:
 public:
 	static int AliveCol;
 	static int DeadCol;
+	static bool DragMode;
 
 	Tile(int x, int y, int w, int h, char* l=0);
 
@@ -27,6 +28,8 @@ public:
 	void update_display();
 
 	void toggle() {this->state = !this->state;};
+	void setState(bool s) {this->state = s;};
+	bool getState() {return this->state;};
 };
 
 #endif /* SRC_TILE_H_ */

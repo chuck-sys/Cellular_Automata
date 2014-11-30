@@ -1,5 +1,5 @@
 CPP := g++
-CPPFLAGS := `fltk-config --cxxflags` -c
+CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c
 LD := g++
 LDFLAGS := `fltk-config --ldflags`
 LDSTATIC := `fltk-config --ldstaticflags`
@@ -17,6 +17,9 @@ clean:
 
 $(EXE): obj/ $(OBJ)
 	$(LD) $(OBJ) $(LDFLAGS) -o $@
+
+obj/Main.o: src/Main.cpp src/Rulestring.h
+obj/Tile.o: src/Tile.cpp src/Tile.h
 
 obj/:
 	mkdir obj
