@@ -24,6 +24,9 @@
 using namespace std;
 
 
+// #-1	Your own rule
+vector<int> Own_RS;
+
 // #0	Game of Life
 const vector<int> GameofLife_RS {2, 3, -1, 3};
 

@@ -75,11 +75,13 @@ Fl_Menu_Item Menu_Items[] = {
 			{0},
 		{0},
 	{"&Rules", 0, 0, 0, FL_SUBMENU},
+		{"Create Rule...", 0, not_implemented, 0, FL_MENU_DIVIDER},
 		{"Game of Life", 0, change_rule_cb, 0, FL_MENU_VALUE | FL_MENU_RADIO},
 		{"HighLife", 0, change_rule_cb, (void*)1, FL_MENU_RADIO},
 		{"Maze", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
 		{"Mazectric", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
-		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
+		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO | FL_MENU_DIVIDER},
+		{"Your own rule", 0, change_rule_cb, (void*)-1, FL_MENU_RADIO},
 		{0},
 	{0}
 };
@@ -250,6 +252,15 @@ void change_rule_cb(Fl_Widget* w, void* data)
 {
 	switch((long)data)
 	{
+	case -1:
+		// #-1	Your own rule
+		if(Own_RS.size() == 0)
+		{
+			// If you haven't established your own ruleset, just ask
+			not_implemented(w, data);
+		}
+		currentRS = Own_RS;
+		break;
 	case 0:
 		// #0	Game of Life
 		currentRS = GameofLife_RS;
