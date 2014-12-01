@@ -27,7 +27,7 @@ const int cw = 10;
 const int ch = 10;
 const int menuh = 30;
 const int buttonh = 50;
-const double timeout = 0.25;
+const double timeout = 0.1;
 
 // Global variables
 vector<Tile*> cells;
@@ -183,12 +183,12 @@ void tick(void* step)
 	// Put tempcells into cells
 	for(int i=0; i<sizeof(tempcells)/sizeof(bool); i++)
 	{
-		//if(cells[i]->getState() != tempcells[i])
-		//{
+		if(cells[i]->getState() != tempcells[i])
+		{
 			// Update only if necessary
 			cells[i]->setState(tempcells[i]);
 			cells[i]->update_display();
-		//}
+		}
 	}
 
 	if(!(bool)step)
