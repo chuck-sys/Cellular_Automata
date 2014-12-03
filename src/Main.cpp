@@ -27,7 +27,7 @@ const int cw = 10;
 const int ch = 10;
 const int menuh = 30;
 const int buttonh = 50;
-const double timeout = 0.1;
+const double timeout = 0.05;
 
 // Global variables
 vector<Tile*> cells;
