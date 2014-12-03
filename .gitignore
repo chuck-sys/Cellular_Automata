@@ -1,5 +1,6 @@
 # All object files
 obj/*
+obj/
 
 # All executables
 Cellular_Automata
