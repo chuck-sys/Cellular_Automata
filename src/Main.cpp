@@ -7,8 +7,6 @@
 
 #include <vector>
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
 
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
@@ -50,7 +48,6 @@ void step_cb(Fl_Widget*, void*);
 void drag_cb(Fl_Widget*, void*);
 void change_rule_cb(Fl_Widget*, void*);
 void reset_cb(Fl_Widget*, void*);
-void random_board_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -63,7 +60,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"&Select", 0, 0, 0, FL_SUBMENU},
 		{"Drag Mode", 0, drag_cb, 0, FL_MENU_TOGGLE | FL_MENU_DIVIDER},
-		{"Random Tiles", 0, random_board_cb},
+		{"Random Tiles", 0, not_implemented},
 		{"Reset Tiles", 0, reset_cb},
 		{0},
 	{"Stamps", 0, 0, 0, FL_SUBMENU},
@@ -94,7 +91,7 @@ int main(int argc, char* argv[])
 	Fl_Double_Window* w = new Fl_Double_Window(gw*cw, gh*ch+menuh+buttonh, App_Title);
 	w->begin();
 
-	// Add all the cells into the screen
+	// Add all the cells in
 	for(int y=0; y<gh; y++)
 	{
 		for(int x=0; x<gw; x++)
@@ -300,19 +297,6 @@ void reset_cb(Fl_Widget* w, void* data)
 		{
 			// Update only if state = true
 			cells[i]->setState(false);
-			cells[i]->update_display();
-		}
-	}
-}
-
-void random_board_cb(Fl_Widget* w, void* data)
-{
-	for(int i=0; i<cells.size(); i++)
-	{
-		bool changed = rand() % 2;
-		if(cells[i]->getState() != changed)
-		{
-			cells[i]->setState(changed);
 			cells[i]->update_display();
 		}
 	}
