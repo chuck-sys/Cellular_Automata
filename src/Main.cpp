@@ -12,6 +12,7 @@
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Menu_Item.H>
+#include <FL/Fl_File_Chooser.H>
 #include <FL/fl_message.H>
 
 #include "Tile.h"
@@ -209,7 +210,26 @@ void tile_cb(Fl_Widget* w, void* data)
 
 void save_board_cb(Fl_Widget* w, void* data)
 {
+	// Uses ASCII art to save
+	// Asks user for filename
+	char fn[] = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", "~/Documents");
+	if(fn == NULL)
+	{
+		// If user cancelled
+		// return
+		msgbox("Cancelled");
+		return
+	}
 
+	// Turns the whole board into a string
+	// delimited by '\n's
+	char wholeboard[gh][gw];
+	for(int y=0; y<gh; y++)
+	{
+		for(int x=0; x<gw; x++)
+		{
+		}
+	}
 }
 
 void open_board_cb(Fl_Widget* w, void* data)
