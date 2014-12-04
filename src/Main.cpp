@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <fstream>
+#include <cstdlib>
 #include <exception>
 #include <iostream>
 
@@ -51,6 +52,7 @@ void step_cb(Fl_Widget*, void*);
 void drag_cb(Fl_Widget*, void*);
 void change_rule_cb(Fl_Widget*, void*);
 void reset_cb(Fl_Widget*, void*);
+void randtiles_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -63,7 +65,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"&Select", 0, 0, 0, FL_SUBMENU},
 		{"Drag Mode", 0, drag_cb, 0, FL_MENU_TOGGLE | FL_MENU_DIVIDER},
-		{"Random Tiles", 0, not_implemented},
+		{"Random Tiles", 0, randtiles_cb},
 		{"Reset Tiles", 0, reset_cb},
 		{0},
 	{"Stamps", 0, 0, 0, FL_SUBMENU},
@@ -368,6 +370,21 @@ void reset_cb(Fl_Widget* w, void* data)
 		{
 			// Update only if state = true
 			cells[i]->setState(false);
+			cells[i]->update_display();
+		}
+	}
+}
+
+void randtiles_cb(Fl_Widget* w, void* data)
+{
+	// Generate a random grid of tiles
+	for(int i=0; i<gw*gh; i++)
+	{
+		bool state = (bool)(rand() % 2);
+		if(cells[i]->getState() != state)
+		{
+			// Update when necessary
+			cells[i]->setState(state);
 			cells[i]->update_display();
 		}
 	}
