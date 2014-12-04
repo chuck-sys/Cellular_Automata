@@ -6,6 +6,8 @@
  */
 
 #include <vector>
+#include <fstream>
+#include <exception>
 #include <iostream>
 
 #include <FL/Fl.H>
@@ -28,7 +30,7 @@ const int cw = 10;
 const int ch = 10;
 const int menuh = 30;
 const int buttonh = 50;
-const double timeout = 0.05;
+const double timeout = 0.1;
 
 // Global variables
 vector<Tile*> cells;
@@ -53,9 +55,9 @@ void reset_cb(Fl_Widget*, void*);
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
 	{"&File", 0, 0, 0, FL_SUBMENU},
-		{"&Save Board", 0, not_implemented},
+		{"&Save Board", 0, save_board_cb},
 		{"Save Stamp", 0, not_implemented},
-		{"&Load Board", 0, not_implemented},
+		{"&Load Board", 0, open_board_cb},
 		{"Load Stamp", 0, not_implemented, 0, FL_MENU_DIVIDER},
 		{"E&xit", 0, quit_cb},
 		{0},
@@ -119,6 +121,8 @@ int main(int argc, char* argv[])
 
 	play_bt->tooltip("Play/Start the simulation");
 	step_bt->tooltip("Step through simulation by one");
+
+	w->position(Fl::w()/2-w->w()/2, Fl::h()/2-w->h()/2);
 
 	w->show(argc, argv);
 
@@ -212,29 +216,76 @@ void save_board_cb(Fl_Widget* w, void* data)
 {
 	// Uses ASCII art to save
 	// Asks user for filename
-	char fn[] = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", "~/Documents");
+	char* fn = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", "/home/");
 	if(fn == NULL)
 	{
 		// If user cancelled
 		// return
-		msgbox("Cancelled");
-		return
+		return;
 	}
 
 	// Turns the whole board into a string
 	// delimited by '\n's
-	char wholeboard[gh][gw];
+	char wholeboard[gh*gw];
 	for(int y=0; y<gh; y++)
 	{
 		for(int x=0; x<gw; x++)
 		{
+			if(cells[y*gh+x]->getState())
+				wholeboard[y*gh+x] = 'X';
+			else
+				wholeboard[y*gh+x] = 'O';
 		}
+	}
+
+	// Write the whole thing to file
+	try
+	{
+		ofstream file(fn);
+		file << wholeboard;
+		file.close();
+	}
+	catch(exception& ex)
+	{
+		msgbox(ex.what());
+		return;
 	}
 }
 
 void open_board_cb(Fl_Widget* w, void* data)
 {
+	// Asks user for filename
+	char* fn = fl_file_chooser("Open Board", "Cellular Automata (*.ca)| All Files (*.*)", "/home/");
+	if(fn == NULL)
+	{
+		// If user cancelled
+		// return
+		return;
+	}
 
+	// Read the file, delimited by '\n's
+	int i=0;
+	try
+	{
+		ifstream file(fn);
+		char tmp;
+		while(file.get(tmp))
+		{
+			bool state = (tmp=='X'? true:false);
+			if(cells[i]->getState() != state)
+			{
+				cells[i]->setState(state);
+				cells[i]->update_display();
+			}
+			i++;
+		}
+		file.close();
+	}
+	catch(exception& ex)
+	{
+		msgbox(ex.what());
+		return;
+	}
 }
 
 void quit_cb(Fl_Widget* w, void* data)
