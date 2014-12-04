@@ -24,7 +24,8 @@
 using namespace std;
 
 // Default/Constant variables
-const char* App_Title = "Cellular Automata";
+const char App_Title[] = "Cellular Automata";
+const char App_Version[] = "v0.0.0";
 const int gw = 50;
 const int gh = 50;
 const int cw = 10;
@@ -64,6 +65,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"E&xit", 0, quit_cb},
 		{0},
 	{"&Select", 0, 0, 0, FL_SUBMENU},
+		{"Square", 0, not_implemented, 0, FL_MENU_DIVIDER},
 		{"Drag Mode", 0, drag_cb, 0, FL_MENU_TOGGLE | FL_MENU_DIVIDER},
 		{"Random Tiles", 0, randtiles_cb},
 		{"Reset Tiles", 0, reset_cb},
@@ -87,6 +89,12 @@ Fl_Menu_Item Menu_Items[] = {
 		{"Mazectric", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
 		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO | FL_MENU_DIVIDER},
 		{"Your own rule", 0, change_rule_cb, (void*)-1, FL_MENU_RADIO},
+		{0},
+	{"&Advanced", 0, 0, 0, FL_SUBMENU},
+		{"Project...", 0, not_implemented},
+		{0},
+	{"&Help", 0, 0, 0, FL_SUBMENU},
+		{"About Program", 0, not_implemented},
 		{0},
 	{0}
 };
@@ -297,18 +305,24 @@ void quit_cb(Fl_Widget* w, void* data)
 
 void play_cb(Fl_Widget* w, void* data)
 {
-	w->label("@square");
-	w->tooltip("Stop the simulation");
-	w->callback(stop_cb);
-	Fl::add_timeout(timeout, tick);
+	if(!Fl::has_timeout(tick))
+	{
+		w->label("@square");
+		w->tooltip("Stop the simulation");
+		w->callback(stop_cb);
+		Fl::add_timeout(timeout, tick);
+	}
 }
 
 void stop_cb(Fl_Widget* w, void* data)
 {
-	w->label("@>");
-	w->tooltip("Play/Start the simulation");
-	w->callback(play_cb);
-	Fl::remove_timeout(tick);
+	if(Fl::has_timeout(tick))
+	{
+		w->label("@>");
+		w->tooltip("Play/Start the simulation");
+		w->callback(play_cb);
+		Fl::remove_timeout(tick);
+	}
 }
 
 void step_cb(Fl_Widget* w, void* data)
