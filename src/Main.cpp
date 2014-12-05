@@ -420,7 +420,7 @@ void select_square_cb(Fl_Widget* w, void* data)
 		// (Set the callbacks)
 		for(int i=0; i<cells.size(); i++)
 		{
-			cells[i].callback(corner_cb);
+			cells[i]->callback(corner_cb);
 		}
 		// Set selectmode
 		selectmode = true;
@@ -434,16 +434,10 @@ void select_square_cb(Fl_Widget* w, void* data)
 		// set selectmode false
 		for(int i=0; i<cells.size(); i++)
 		{
-			cells[i].callback(tile_cb);
-		}
-		// Grey out the area
-		for(int y=data[1]; y<data[3]; y++)
-		{
-			for(int x=data[0]; x<data[2]; x++)
-			{
-				cells[y*gh+x].color(cells[y*gh+x].color() % 10);
-				cells[y*gh+x].redraw();
-			}
+			cells[i]->callback(tile_cb);
+			// Grey out the area
+			cells[i]->color(cells[i]->color() % 10);
+			cells[i]->redraw();
 		}
 	}
 	else if(tempdata[0] == -2)
@@ -452,13 +446,13 @@ void select_square_cb(Fl_Widget* w, void* data)
 		// reset buttons
 		for(int i=0; i<cells.size(); i++)
 		{
-			cells[i].callback(tile_cb);
-			cells[i].update_display();
+			cells[i]->callback(tile_cb);
+			cells[i]->update_display();
 		}
 		selectmode = false;
 		// Reset the temporary data
 		for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
-			data[i] = -1;
+			tempdata[i] = -1;
 	}
 }
 
@@ -472,10 +466,11 @@ void corner_cb(Fl_Widget* w, void* data)
 	}
 	else
 	{
+		Tile* t = (Tile*)w;
 		// Set the corners
-		tempdata[tempdata[4]] = wid->getX();
-		tempdata[tempdata[4]+1] = wid->getY();
+		tempdata[tempdata[4]] = t->getX();
+		tempdata[tempdata[4]+1] = t->getY();
 		tempdata[4] += 2;							// Increment index
 	}
-	select_square_cb(wid, data);
+	select_square_cb(w, data);
 }
