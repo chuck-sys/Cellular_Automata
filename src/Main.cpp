@@ -38,6 +38,9 @@ const double timeout = 0.1;
 vector<Tile*> cells;
 vector<int> currentRS = GameofLife_RS;
 
+bool selectmode = false;
+int tempdata[5] = {-1,-1,-1,-1,-1};
+
 // Function prototypes
 void msgbox(const char*, const char*);
 void tick(void*);
@@ -54,6 +57,8 @@ void drag_cb(Fl_Widget*, void*);
 void change_rule_cb(Fl_Widget*, void*);
 void reset_cb(Fl_Widget*, void*);
 void randtiles_cb(Fl_Widget*, void*);
+void select_square_cb(Fl_Widget*, void*);
+void corner_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -65,7 +70,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"E&xit", 0, quit_cb},
 		{0},
 	{"&Select", 0, 0, 0, FL_SUBMENU},
-		{"Square", 0, not_implemented, 0, FL_MENU_DIVIDER},
+		{"A Square", 0, select_square_cb, 0, FL_MENU_DIVIDER},
 		{"Drag Mode", 0, drag_cb, 0, FL_MENU_TOGGLE | FL_MENU_DIVIDER},
 		{"Random Tiles", 0, randtiles_cb},
 		{"Reset Tiles", 0, reset_cb},
@@ -110,6 +115,7 @@ int main(int argc, char* argv[])
 		for(int x=0; x<gw; x++)
 		{
 			Tile* t = new Tile(x*cw, y*ch+menuh, cw, ch);
+			t->setCoords(x, y);
 			t->callback(tile_cb);
 			cells.push_back(t);
 		}
@@ -404,3 +410,72 @@ void randtiles_cb(Fl_Widget* w, void* data)
 	}
 }
 
+void select_square_cb(Fl_Widget* w, void* data)
+{
+	// Puts program into square select mode
+	if(!selectmode)
+	{
+		// If program is not in select mode
+		// Set up for select first corner
+		// (Set the callbacks)
+		for(int i=0; i<cells.size(); i++)
+		{
+			cells[i].callback(corner_cb);
+		}
+		// Set selectmode
+		selectmode = true;
+		// Set index
+		tempdata[4] = 0;
+	}
+	else if(tempdata[0] != -1 && tempdata[1] != -1 && tempdata[2] != -1 && tempdata[3] != -1 && selectmode)
+	{
+		// If you are done inputting the 2 corners,
+		// put the stuff back
+		// set selectmode false
+		for(int i=0; i<cells.size(); i++)
+		{
+			cells[i].callback(tile_cb);
+		}
+		// Grey out the area
+		for(int y=data[1]; y<data[3]; y++)
+		{
+			for(int x=data[0]; x<data[2]; x++)
+			{
+				cells[y*gh+x].color(cells[y*gh+x].color() % 10);
+				cells[y*gh+x].redraw();
+			}
+		}
+	}
+	else if(tempdata[0] == -2)
+	{
+		// If you right-click (cancel operation)
+		// reset buttons
+		for(int i=0; i<cells.size(); i++)
+		{
+			cells[i].callback(tile_cb);
+			cells[i].update_display();
+		}
+		selectmode = false;
+		// Reset the temporary data
+		for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
+			data[i] = -1;
+	}
+}
+
+void corner_cb(Fl_Widget* w, void* data)
+{
+	// Check for right-click. If there is right-click, cancel select.
+	if(Fl::event_button() == FL_RIGHT_MOUSE)
+	{
+		// Set to cancel
+		tempdata[0] = -2;
+	}
+	else
+	{
+		// Set the corners
+		tempdata[tempdata[4]] = wid->getX();
+		tempdata[tempdata[4]+1] = wid->getY();
+		tempdata[4] += 2;							// Increment index
+	}
+	select_square_cb(wid, data);
+}

@@ -15,6 +15,7 @@ class Tile: public Fl_Button
 {
 private:
 	bool state;
+	int coords[2];
 
 public:
 	static int AliveCol;
@@ -30,6 +31,10 @@ public:
 	void toggle() {this->state = !this->state;};
 	void setState(bool s) {this->state = s;};
 	bool getState() {return this->state;};
+	int getX() {return this->coords[0];};
+	int getY() {return this->coords[1];};
+	int* getCoords() {return this->coords;};
+	void setCoords(int x, int y) {coords[0] = x; coords[1] = y;};
 };
 
 #endif /* SRC_TILE_H_ */
