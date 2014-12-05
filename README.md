@@ -10,7 +10,7 @@ Author:		Cheuk Yin Ng <cheukyin699@yahoo.com>
 
 
 
-BUILD
+Build
 =====
 
 To build Cellular Automata, you will need the following installed on your<br>
