@@ -41,6 +41,15 @@ vector<Tile*> cells;
 vector<int> currentRS = GameofLife_RS;
 
 bool selectmode = false;
+/*
+ * TEMPDATA INFO
+ *
+ * tempdata[0]: x-coordinate for first corner
+ * tempdata[1]: y-coordinate for first corner
+ * tempdata[2]: x-coordinate for second corner
+ * tempdata[3]: y-coordinate for second corner
+ * tempdata[4]: index for the corners selected (to put coordinates in correct places)
+ */
 int tempdata[5] = {-1,-1,-1,-1,-1};
 
 // Function prototypes
@@ -388,13 +397,33 @@ void change_rule_cb(Fl_Widget* w, void* data)
 void reset_cb(Fl_Widget* w, void* data)
 {
 	// Resets the tiles
-	for(int i=0; i<gw*gh; i++)
+	// If you are in select mode, only resets those that are selected
+	if(selectmode && tempdata[4] == -1)
 	{
-		if(cells[i]->getState())
+		for(int y=tempdata[1]; y<=tempdata[3]; y++)
 		{
-			// Update only if state = true
-			cells[i]->setState(false);
-			cells[i]->update_display();
+			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			{
+				if(cells[y*gh+x]->getState())
+				{
+					cells[y*gh+x]->setState(false);
+					cells[y*gh+x]->update_color();
+					cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
+					cells[y*gh+x]->redraw();
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<gw*gh; i++)
+		{
+			if(cells[i]->getState())
+			{
+				// Update only if state = true
+				cells[i]->setState(false);
+				cells[i]->update_display();
+			}
 		}
 	}
 }
