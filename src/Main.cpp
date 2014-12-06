@@ -179,7 +179,7 @@ void tick(void* step)
 				{
 					if(((x+ofx>=0) && (y+ofy>=0) && (x+ofx < gw) && (y+ofy < gh) && !((ofx == 0) && (ofy == 0))))
 					{
-						aroundtiles += int(cells[(y+ofy)*gh+x+ofx]->getState());
+						aroundtiles += int(cells[(y+ofy)*gw+x+ofx]->getState());
 					}
 				}
 			}
@@ -198,19 +198,19 @@ void tick(void* step)
 				{
 					// When it hasn't looped through middle separator yet
 					// Do the rules for survival
-					if(aroundtiles == currentRS[i] && cells[y*gh+x]->getState())
+					if(aroundtiles == currentRS[i] && cells[y*gw+x]->getState())
 						tempbool = true;
 				}
 				else if(negone)
 				{
 					// When it has looped through the middle separator
 					// Do the rules for birth
-					if(aroundtiles == currentRS[i] && !cells[y*gh+x]->getState())
+					if(aroundtiles == currentRS[i] && !cells[y*gw+x]->getState())
 						tempbool = true;
 				}
 				count++;
 			}
-			tempcells[y*gh+x] = tempbool;
+			tempcells[y*gw+x] = tempbool;
 		}
 	}
 
@@ -254,16 +254,17 @@ void save_board_cb(Fl_Widget* w, void* data)
 	}
 
 	// Turns the whole board into a string
-	// delimited by '\n's
 	char wholeboard[gh*gw];
 	for(int y=0; y<gh; y++)
 	{
 		for(int x=0; x<gw; x++)
 		{
-			if(cells[y*gh+x]->getState())
-				wholeboard[y*gh+x] = 'X';
+			if(cells[y*gw+x]->getState())
+			{
+				wholeboard[y*gw+x] = 'X';
+			}
 			else
-				wholeboard[y*gh+x] = 'O';
+				wholeboard[y*gw+x] = 'O';
 		}
 	}
 
@@ -298,7 +299,7 @@ void open_board_cb(Fl_Widget* w, void* data)
 	{
 		ifstream file(fn);
 		char tmp;
-		while(file.get(tmp))
+		while(file.get(tmp) && i < gw*gh)
 		{
 			bool state = (tmp=='X'? true:false);
 			if(cells[i]->getState() != state)
@@ -404,19 +405,19 @@ void reset_cb(Fl_Widget* w, void* data)
 		{
 			for(int x=tempdata[0]; x<=tempdata[2]; x++)
 			{
-				if(cells[y*gh+x]->getState())
+				if(cells[y*gw+x]->getState())
 				{
-					cells[y*gh+x]->setState(false);
-					cells[y*gh+x]->update_color();
-					cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
-					cells[y*gh+x]->redraw();
+					cells[y*gw+x]->setState(false);
+					cells[y*gw+x]->update_color();
+					cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
+					cells[y*gw+x]->redraw();
 				}
 			}
 		}
 	}
 	else
 	{
-		for(int i=0; i<gw*gh; i++)
+		for(int i=0; i<cells.size(); i++)
 		{
 			if(cells[i]->getState())
 			{
@@ -439,19 +440,19 @@ void randtiles_cb(Fl_Widget* w, void* data)
 			for(int x=tempdata[0]; x<=tempdata[2]; x++)
 			{
 				bool state = (bool)(rand() % 2);
-				if(cells[y*gh+x]->getState() != state)
+				if(cells[y*gw+x]->getState() != state)
 				{
-					cells[y*gh+x]->setState(state);
-					cells[y*gh+x]->update_color();
-					cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
-					cells[y*gh+x]->redraw();
+					cells[y*gw+x]->setState(state);
+					cells[y*gw+x]->update_color();
+					cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
+					cells[y*gw+x]->redraw();
 				}
 			}
 		}
 	}
 	else
 	{
-		for(int i=0; i<gw*gh; i++)
+		for(int i=0; i<cells.size(); i++)
 		{
 			bool state = (bool)(rand() % 2);
 			if(cells[i]->getState() != state)
@@ -513,8 +514,8 @@ void select_square_cb(Fl_Widget* w, void* data)
 			for(int x=tempdata[0]; x<=tempdata[2]; x++)
 			{
 				// Alternate coloring for the area
-				cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
-				cells[y*gh+x]->redraw();
+				cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
+				cells[y*gw+x]->redraw();
 			}
 		}
 		// Reset the index
@@ -578,10 +579,10 @@ void inverttiles_cb(Fl_Widget* w, void* data)
 		{
 			for(int x=tempdata[0]; x<=tempdata[2]; x++)
 			{
-				cells[y*gh+x]->setState(!cells[y*gh+x]->getState());
-				cells[y*gh+x]->update_color();
-				cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
-				cells[y*gh+x]->redraw();
+				cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
+				cells[y*gw+x]->update_color();
+				cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
+				cells[y*gw+x]->redraw();
 			}
 		}
 	}
