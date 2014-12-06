@@ -549,7 +549,11 @@ void corner_cb(Fl_Widget* w, void* data)
 		Tile* t = (Tile*)w;
 		// Set the index
 		if(tempdata[4] == -1)
+		{
 			tempdata[4] = 0;
+			// To allow selecting and selecting again
+			tempdata[3] = -1;
+		}
 		// Set the corners
 		tempdata[tempdata[4]] = t->getX();
 		tempdata[tempdata[4]+1] = t->getY();
