@@ -431,14 +431,35 @@ void reset_cb(Fl_Widget* w, void* data)
 void randtiles_cb(Fl_Widget* w, void* data)
 {
 	// Generate a random grid of tiles
-	for(int i=0; i<gw*gh; i++)
+	// in selected area or whole board
+	if(selectmode && tempdata[4] == -1)
 	{
-		bool state = (bool)(rand() % 2);
-		if(cells[i]->getState() != state)
+		for(int y=tempdata[1]; y<=tempdata[3]; y++)
 		{
-			// Update when necessary
-			cells[i]->setState(state);
-			cells[i]->update_display();
+			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			{
+				bool state = (bool)(rand() % 2);
+				if(cells[y*gh+x]->getState() != state)
+				{
+					cells[y*gh+x]->setState(state);
+					cells[y*gh+x]->update_color();
+					cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
+					cells[y*gh+x]->redraw();
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<gw*gh; i++)
+		{
+			bool state = (bool)(rand() % 2);
+			if(cells[i]->getState() != state)
+			{
+				// Update when necessary
+				cells[i]->setState(state);
+				cells[i]->update_display();
+			}
 		}
 	}
 }
