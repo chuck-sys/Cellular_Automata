@@ -61,6 +61,7 @@ void reset_cb(Fl_Widget*, void*);
 void randtiles_cb(Fl_Widget*, void*);
 void select_square_cb(Fl_Widget*, void*);
 void corner_cb(Fl_Widget*, void*);
+void inverttiles_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -75,6 +76,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"A Square", 0, select_square_cb, 0, FL_MENU_DIVIDER},
 		{"Drag Mode", 0, drag_cb, 0, FL_MENU_TOGGLE | FL_MENU_DIVIDER},
 		{"Random Tiles", 0, randtiles_cb},
+		{"Invert Tiles", 0, inverttiles_cb},
 		{"Reset Tiles", 0, reset_cb},
 		{0},
 	{"Stamps", 0, 0, 0, FL_SUBMENU},
@@ -508,4 +510,17 @@ void corner_cb(Fl_Widget* w, void* data)
 			msgbox("Please select another corner.\nRight-click to cancel.");
 	}
 	select_square_cb(w, data);
+}
+
+void inverttiles_cb(Fl_Widget* w, void* data)
+{
+	// Inverts all the tiles
+	for(int i=0; i<cells.size(); i++)
+	{
+		// Unfortunately, this has you updating
+		// all the tiles, so I can't see any
+		// optimizations to implement.
+		cells[i]->setState(!cells[i]->getState());
+		cells[i]->update_display();
+	}
 }
