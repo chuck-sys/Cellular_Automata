@@ -32,7 +32,9 @@ const int cw = 10;
 const int ch = 10;
 const int menuh = 30;
 const int buttonh = 50;
+const int shadefactor = 10;
 const double timeout = 0.1;
+const bool tutmode = false;
 
 // Global variables
 vector<Tile*> cells;
@@ -426,19 +428,46 @@ void select_square_cb(Fl_Widget* w, void* data)
 		selectmode = true;
 		// Set index
 		tempdata[4] = 0;
+		// For tutorial mode
+		if(tutmode)
+			msgbox("Please select a corner.\nRight-click to cancel.");
 	}
 	else if(tempdata[0] != -1 && tempdata[1] != -1 && tempdata[2] != -1 && tempdata[3] != -1 && selectmode)
 	{
+		// Test all the points first
+		// Rearrange if neccessary
+		if(tempdata[0] > tempdata[2])
+		{
+			int temp = tempdata[0];
+			tempdata[0] = tempdata[2];
+			tempdata[2] = temp;
+		}
+		if(tempdata[1] > tempdata[3])
+		{
+			int temp = tempdata[1];
+			tempdata[1] = tempdata[3];
+			tempdata[3] = temp;
+		}
 		// If you are done inputting the 2 corners,
 		// put the stuff back
-		// set selectmode false
+		// Reset all displays first
 		for(int i=0; i<cells.size(); i++)
 		{
-			cells[i]->callback(tile_cb);
-			// Grey out the area
-			cells[i]->color(cells[i]->color() % 10);
-			cells[i]->redraw();
+			cells[i]->update_display();
 		}
+		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		{
+			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			{
+				// Alternate coloring for the area
+				cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
+				cells[y*gh+x]->redraw();
+			}
+		}
+		// Reset the last data-point
+		tempdata[3] = -1;
+		// Reset the index
+		tempdata[4] = 0;
 	}
 	else if(tempdata[0] == -2)
 	{
@@ -471,6 +500,12 @@ void corner_cb(Fl_Widget* w, void* data)
 		tempdata[tempdata[4]] = t->getX();
 		tempdata[tempdata[4]+1] = t->getY();
 		tempdata[4] += 2;							// Increment index
+		// Colour it in
+		t->color(t->color() % shadefactor);
+		t->redraw();
+		// Tutorial mode
+		if(tutmode && tempdata[3] == -1)
+			msgbox("Please select another corner.\nRight-click to cancel.");
 	}
 	select_square_cb(w, data);
 }
