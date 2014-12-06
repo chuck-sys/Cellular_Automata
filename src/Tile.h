@@ -27,6 +27,7 @@ public:
 	int handle(int);				// Overrides the default event handler
 	void draw();					// Overrides the default draw function
 	void update_display();
+	void update_color();
 
 	void toggle() {this->state = !this->state;};
 	void setState(bool s) {this->state = s;};

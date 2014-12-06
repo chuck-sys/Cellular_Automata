@@ -49,6 +49,12 @@ void Tile::draw()
 
 void Tile::update_display()
 {
+	this->update_color();
+	this->redraw();
+}
+
+void Tile::update_color()
+{
 	if(this->state)
 	{
 		// If the tile is switched on, the cell is alive
@@ -61,6 +67,5 @@ void Tile::update_display()
 		// Change the color of the cell
 		this->color(Tile::DeadCol);
 	}
-	this->redraw();
 }
 

@@ -434,7 +434,8 @@ void select_square_cb(Fl_Widget* w, void* data)
 		if(tutmode)
 			msgbox("Please select a corner.\nRight-click to cancel.");
 	}
-	else if(tempdata[0] != -1 && tempdata[1] != -1 && tempdata[2] != -1 && tempdata[3] != -1 && selectmode)
+	else if(tempdata[0] != -1 && tempdata[1] != -1 && tempdata[2] != -1 &&
+			tempdata[3] != -1 && tempdata[4] != -1 && selectmode)
 	{
 		// Test all the points first
 		// Rearrange if neccessary
@@ -466,10 +467,8 @@ void select_square_cb(Fl_Widget* w, void* data)
 				cells[y*gh+x]->redraw();
 			}
 		}
-		// Reset the last data-point
-		tempdata[3] = -1;
 		// Reset the index
-		tempdata[4] = 0;
+		tempdata[4] = -1;
 	}
 	else if(tempdata[0] == -2)
 	{
@@ -498,6 +497,9 @@ void corner_cb(Fl_Widget* w, void* data)
 	else
 	{
 		Tile* t = (Tile*)w;
+		// Set the index
+		if(tempdata[4] == -1)
+			tempdata[4] = 0;
 		// Set the corners
 		tempdata[tempdata[4]] = t->getX();
 		tempdata[tempdata[4]+1] = t->getY();
@@ -514,13 +516,30 @@ void corner_cb(Fl_Widget* w, void* data)
 
 void inverttiles_cb(Fl_Widget* w, void* data)
 {
-	// Inverts all the tiles
-	for(int i=0; i<cells.size(); i++)
+	// Inverts all the tiles, if none are selected
+	// You have to be in select mode. (Obviously)
+	if(selectmode && tempdata[4] == -1)
 	{
-		// Unfortunately, this has you updating
-		// all the tiles, so I can't see any
-		// optimizations to implement.
-		cells[i]->setState(!cells[i]->getState());
-		cells[i]->update_display();
+		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		{
+			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			{
+				cells[y*gh+x]->setState(!cells[y*gh+x]->getState());
+				cells[y*gh+x]->update_color();
+				cells[y*gh+x]->color(cells[y*gh+x]->color() % shadefactor);
+				cells[y*gh+x]->redraw();
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<cells.size(); i++)
+		{
+			// Unfortunately, this has you updating
+			// all the tiles, so I can't see any
+			// optimizations to implement.
+			cells[i]->setState(!cells[i]->getState());
+			cells[i]->update_display();
+		}
 	}
 }
