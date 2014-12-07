@@ -254,18 +254,19 @@ void save_board_cb(Fl_Widget* w, void* data)
 	}
 
 	// Turns the whole board into a string
-	char wholeboard[gh*gw];
+	char wholeboard[gh*(gw+1)];
 	for(int y=0; y<gh; y++)
 	{
 		for(int x=0; x<gw; x++)
 		{
 			if(cells[y*gw+x]->getState())
 			{
-				wholeboard[y*gw+x] = 'X';
+				wholeboard[y*(gw+1)+x] = 'X';
 			}
 			else
-				wholeboard[y*gw+x] = 'O';
+				wholeboard[y*(gw+1)+x] = 'O';
 		}
+		wholeboard[y*(gw+1)+gw] = '\n';
 	}
 
 	// Write the whole thing to file
@@ -294,20 +295,45 @@ void open_board_cb(Fl_Widget* w, void* data)
 	}
 
 	// Read the file, delimited by '\n's
-	int i=0;
+	int x=0;
+	int y=0;
+	bool err=false;
+	bool skip=false;
 	try
 	{
 		ifstream file(fn);
 		char tmp;
-		while(file.get(tmp) && i < gw*gh)
+		while(file.get(tmp))
 		{
-			bool state = (tmp=='X'? true:false);
-			if(cells[i]->getState() != state)
+			// Out of range errors
+			if(x >= gw)
 			{
-				cells[i]->setState(state);
-				cells[i]->update_display();
+				err = true;
+				skip = true;
+				x=0;
 			}
-			i++;
+			if(y >= gh)
+			{
+				err = true;
+				break;
+			}
+
+			if(tmp == '\n')
+			{
+				x=0;
+				y++;
+				skip = false;
+				continue;
+			}
+			if(skip)
+				continue;
+			bool state = (tmp=='X'? true:false);
+			if(cells[y*gw+x]->getState() != state)
+			{
+				cells[y*gw+x]->setState(state);
+				cells[y*gw+x]->update_display();
+			}
+			x++;
 		}
 		file.close();
 	}
@@ -315,6 +341,13 @@ void open_board_cb(Fl_Widget* w, void* data)
 	{
 		msgbox(ex.what());
 		return;
+	}
+
+	// Error handling
+	if(err)
+	{
+		// Gives out a warning
+		msgbox("Warning: The file was probably not meant for a board of this size.");
 	}
 }
 
