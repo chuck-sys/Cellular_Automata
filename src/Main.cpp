@@ -5,9 +5,10 @@
  *      Author: cheukyin699
  */
 
+#include <cstdlib>
+#include <string>
 #include <vector>
 #include <fstream>
-#include <cstdlib>
 #include <exception>
 #include <iostream>
 
@@ -26,6 +27,10 @@ using namespace std;
 // Default/Constant variables
 const char App_Title[] = "Cellular Automata";
 const char App_Version[] = "v0.0.0";
+const char App_Info[] = "Cellular Automata is a program which lets you experiment with\n"
+		"different types of cellular automata, hence the name.\n"
+		"By playing around with this program, you get to find out more about\n"
+		"how a certain cellular automata works, or perhaps invent your own.";
 const int gw = 50;
 const int gh = 50;
 const int cw = 10;
@@ -87,6 +92,7 @@ void save_stamp_cb(Fl_Widget*, void*);
 void load_stamp_cb(Fl_Widget*, void*);
 void loadstamp_button_cb(Fl_Widget*, void*);
 void createrule_cb(Fl_Widget*, void*);
+void about_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -128,7 +134,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"Project...", 0, not_implemented},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
-		{"About Program", 0, not_implemented},
+		{"About Program", 0, about_cb},
 		{0},
 	{0}
 };
@@ -831,4 +837,9 @@ void createrule_cb(Fl_Widget* w, void* data)
 	// Tell user
 	if(tutmode)
 		msgbox("Rulestring has been successfully parsed into program. Please select it in menu");
+}
+
+void about_cb(Fl_Widget* w, void* data)
+{
+	msgbox(string(string(App_Title) + string("\nVersion: ") + string(App_Version) + string("\n\n") + string(App_Info)).c_str());
 }
