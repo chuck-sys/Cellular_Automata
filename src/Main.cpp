@@ -50,18 +50,16 @@ bool loadstampmode = false;
  * tempdata[2]: x-coordinate for second corner
  * tempdata[3]: y-coordinate for second corner
  * tempdata[4]: index for the corners selected (to put coordinates in correct places)
- * tempdata[5]: width of stamp
- * tempdata[6]: height of stamp
+ * tempdata[5]: x-coordinate for stamp
+ * tempdata[6]: y-coordinate for stamp
  */
 const int TD_FX = 0;	// Tempdata first x
 const int TD_FY = 1;	// Tempdata first y
 const int TD_SX = 2;	// Tempdata second x
 const int TD_SY = 3;	// Tempdata second y
 const int TD_CI = 4;	// Tempdata corner index
-const int TD_SW = 5;	// Tempdata stamp width
-const int TD_SH = 6;	// Tempdata stamp height
-const int TD_STX = 7;	// Tempdata stamp x
-const int TD_STY = 8;	// Tempdata stamp y
+const int TD_STX = 5;	// Tempdata stamp x
+const int TD_STY = 6;	// Tempdata stamp y
 int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 // Function prototypes
@@ -447,11 +445,11 @@ void reset_cb(Fl_Widget* w, void* data)
 {
 	// Resets the tiles
 	// If you are in select mode, only resets those that are selected
-	if(selectmode && tempdata[4] == -1)
+	if(selectmode && tempdata[TD_CI] == -1)
 	{
-		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
 		{
-			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
 			{
 				if(cells[y*gw+x]->getState())
 				{
@@ -481,11 +479,11 @@ void randtiles_cb(Fl_Widget* w, void* data)
 {
 	// Generate a random grid of tiles
 	// in selected area or whole board
-	if(selectmode && tempdata[4] == -1)
+	if(selectmode && tempdata[TD_CI] == -1)
 	{
-		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
 		{
-			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
 			{
 				bool state = (bool)(rand() % 2);
 				if(cells[y*gw+x]->getState() != state)
@@ -534,27 +532,27 @@ void select_square_cb(Fl_Widget* w, void* data)
 		// Set selectmode
 		selectmode = true;
 		// Set index
-		tempdata[4] = 0;
+		tempdata[TD_CI] = 0;
 		// For tutorial mode
 		if(tutmode)
 			msgbox("Please select a corner.\nRight-click to cancel.");
 	}
-	else if(tempdata[0] != -1 && tempdata[1] != -1 && tempdata[2] != -1 &&
-			tempdata[3] != -1 && tempdata[4] != -1 && selectmode)
+	else if(tempdata[TD_FX] != -1 && tempdata[TD_FY] != -1 && tempdata[TD_SX] != -1 &&
+			tempdata[TD_SY] != -1 && tempdata[TD_CI] != -1 && selectmode)
 	{
 		// Test all the points first
 		// Rearrange if neccessary
-		if(tempdata[0] > tempdata[2])
+		if(tempdata[TD_FX] > tempdata[TD_SX])
 		{
-			int temp = tempdata[0];
-			tempdata[0] = tempdata[2];
-			tempdata[2] = temp;
+			int temp = tempdata[TD_FX];
+			tempdata[TD_FX] = tempdata[TD_SX];
+			tempdata[TD_SX] = temp;
 		}
-		if(tempdata[1] > tempdata[3])
+		if(tempdata[TD_FY] > tempdata[TD_SY])
 		{
-			int temp = tempdata[1];
-			tempdata[1] = tempdata[3];
-			tempdata[3] = temp;
+			int temp = tempdata[TD_FY];
+			tempdata[TD_FY] = tempdata[TD_SY];
+			tempdata[TD_SY] = temp;
 		}
 		// If you are done inputting the 2 corners,
 		// put the stuff back
@@ -563,9 +561,9 @@ void select_square_cb(Fl_Widget* w, void* data)
 		{
 			cells[i]->update_display();
 		}
-		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
 		{
-			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
 			{
 				// Alternate coloring for the area
 				cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
@@ -573,9 +571,9 @@ void select_square_cb(Fl_Widget* w, void* data)
 			}
 		}
 		// Reset the index
-		tempdata[4] = -1;
+		tempdata[TD_CI] = -1;
 	}
-	else if(tempdata[0] == -2)
+	else if(tempdata[TD_FX] == -2)
 	{
 		// If you right-click (cancel operation)
 		// reset buttons
@@ -597,27 +595,27 @@ void corner_cb(Fl_Widget* w, void* data)
 	if(Fl::event_button() == FL_RIGHT_MOUSE)
 	{
 		// Set to cancel
-		tempdata[0] = -2;
+		tempdata[TD_FX] = -2;
 	}
 	else
 	{
 		Tile* t = (Tile*)w;
 		// Set the index
-		if(tempdata[4] == -1)
+		if(tempdata[TD_CI] == -1)
 		{
-			tempdata[4] = 0;
+			tempdata[TD_CI] = 0;
 			// To allow selecting and selecting again
-			tempdata[3] = -1;
+			tempdata[TD_SY] = -1;
 		}
 		// Set the corners
-		tempdata[tempdata[4]] = t->getX();
-		tempdata[tempdata[4]+1] = t->getY();
-		tempdata[4] += 2;							// Increment index
+		tempdata[tempdata[TD_CI]] = t->getX();
+		tempdata[tempdata[TD_CI]+1] = t->getY();
+		tempdata[TD_CI] += 2;							// Increment index
 		// Colour it in
 		t->color(t->color() % shadefactor);
 		t->redraw();
 		// Tutorial mode
-		if(tutmode && tempdata[3] == -1)
+		if(tutmode && tempdata[TD_SY] == -1)
 			msgbox("Please select another corner.\nRight-click to cancel.");
 	}
 	select_square_cb(w, data);
@@ -627,11 +625,11 @@ void inverttiles_cb(Fl_Widget* w, void* data)
 {
 	// Inverts all the tiles, if none are selected
 	// You have to be in select mode. (Obviously)
-	if(selectmode && tempdata[4] == -1)
+	if(selectmode && tempdata[TD_CI] == -1)
 	{
-		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
 		{
-			for(int x=tempdata[0]; x<=tempdata[2]; x++)
+			for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
 			{
 				cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
 				cells[y*gw+x]->update_color();
@@ -656,24 +654,24 @@ void inverttiles_cb(Fl_Widget* w, void* data)
 void save_stamp_cb(Fl_Widget* w, void* data)
 {
 	// Make sure that you have selected an area
-	if(selectmode && tempdata[4] == -1)
+	if(selectmode && tempdata[TD_CI] == -1)
 	{
 		// Ask for filename
 		char* fn = fl_file_chooser("Save Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
 		if(fn == NULL)
 			return;
 
-		int sw = tempdata[2]-tempdata[0];
-		int sh = tempdata[3]-tempdata[1];
+		int sw = tempdata[TD_SX]-tempdata[TD_FX];
+		int sh = tempdata[TD_SY]-tempdata[TD_FY];
 		int i=0;
 		char* stamp = new char[(sw+2)*(sh+1)];
 		// Create the stamp to write to file
-		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
 		{
-			for(int x=tempdata[0]; x<=tempdata[2]+1; x++)
+			for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]+1; x++)
 			{
 				char pc = 'O';
-				if(x-tempdata[0] == sw+1)
+				if(x-tempdata[TD_FX] == sw+1)
 				{
 					pc = '\n';
 				}
@@ -710,7 +708,7 @@ void load_stamp_cb(Fl_Widget* w, void* data)
 			msgbox("You are in select mode. Cannot load stamp.");
 		return;
 	}
-	if(tempdata[0] == -2)
+	if(tempdata[TD_FX] == -2)
 	{
 		if(tutmode)
 			msgbox("Cancelled");
@@ -798,7 +796,7 @@ void loadstamp_button_cb(Fl_Widget* w, void* data)
 	if(Fl::event_button() == FL_RIGHT_MOUSE)
 	{
 		// Set to cancel
-		tempdata[0] = -2;
+		tempdata[TD_FX] = -2;
 	}
 	else
 	{
