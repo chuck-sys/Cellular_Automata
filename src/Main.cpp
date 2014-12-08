@@ -41,6 +41,7 @@ vector<Tile*> cells;
 vector<int> currentRS = GameofLife_RS;
 
 bool selectmode = false;
+bool loadstampmode = false;
 /*
  * TEMPDATA INFO
  *
@@ -49,8 +50,19 @@ bool selectmode = false;
  * tempdata[2]: x-coordinate for second corner
  * tempdata[3]: y-coordinate for second corner
  * tempdata[4]: index for the corners selected (to put coordinates in correct places)
+ * tempdata[5]: width of stamp
+ * tempdata[6]: height of stamp
  */
-int tempdata[5] = {-1,-1,-1,-1,-1};
+const int TD_FX = 0;	// Tempdata first x
+const int TD_FY = 1;	// Tempdata first y
+const int TD_SX = 2;	// Tempdata second x
+const int TD_SY = 3;	// Tempdata second y
+const int TD_CI = 4;	// Tempdata corner index
+const int TD_SW = 5;	// Tempdata stamp width
+const int TD_SH = 6;	// Tempdata stamp height
+const int TD_STX = 7;	// Tempdata stamp x
+const int TD_STY = 8;	// Tempdata stamp y
+int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 // Function prototypes
 void msgbox(const char*, const char*);
@@ -71,14 +83,17 @@ void randtiles_cb(Fl_Widget*, void*);
 void select_square_cb(Fl_Widget*, void*);
 void corner_cb(Fl_Widget*, void*);
 void inverttiles_cb(Fl_Widget*, void*);
+void save_stamp_cb(Fl_Widget*, void*);
+void load_stamp_cb(Fl_Widget*, void*);
+void loadstamp_button_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
 	{"&File", 0, 0, 0, FL_SUBMENU},
 		{"&Save Board", 0, save_board_cb},
-		{"Save Stamp", 0, not_implemented},
+		{"Save Stamp", 0, save_stamp_cb},
 		{"&Load Board", 0, open_board_cb},
-		{"Load Stamp", 0, not_implemented, 0, FL_MENU_DIVIDER},
+		{"Load Stamp", 0, load_stamp_cb, 0, FL_MENU_DIVIDER},
 		{"E&xit", 0, quit_cb},
 		{0},
 	{"&Select", 0, 0, 0, FL_SUBMENU},
@@ -90,13 +105,13 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"Stamps", 0, 0, 0, FL_SUBMENU},
 		{"Still Life", 0, 0, 0, FL_SUBMENU},
-			{"Block", 0, not_implemented},
+			{"Block", 0, load_stamp_cb, (void*)"stamps/block.ca"},
 			{0},
 		{"Oscillators", 0, 0, 0, FL_SUBMENU},
-			{"Blinker", 0, not_implemented},
+			{"Blinker", 0, load_stamp_cb, (void*)"stamps/blinker.ca"},
 			{0},
 		{"Spaceships", 0, 0, 0, FL_SUBMENU},
-			{"Glider", 0, not_implemented},
+			{"Glider", 0, load_stamp_cb, (void*)"stamps/glider.ca"},
 			{0},
 		{0},
 	{"&Rules", 0, 0, 0, FL_SUBMENU},
@@ -500,6 +515,12 @@ void randtiles_cb(Fl_Widget* w, void* data)
 
 void select_square_cb(Fl_Widget* w, void* data)
 {
+	if(loadstampmode)
+	{
+		if(tutmode)
+			msgbox("You are in load stamp mode. Cannot select.");
+		return;
+	}
 	// Puts program into square select mode
 	if(!selectmode)
 	{
@@ -630,4 +651,160 @@ void inverttiles_cb(Fl_Widget* w, void* data)
 			cells[i]->update_display();
 		}
 	}
+}
+
+void save_stamp_cb(Fl_Widget* w, void* data)
+{
+	// Make sure that you have selected an area
+	if(selectmode && tempdata[4] == -1)
+	{
+		// Ask for filename
+		char* fn = fl_file_chooser("Save Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
+		if(fn == NULL)
+			return;
+
+		int sw = tempdata[2]-tempdata[0];
+		int sh = tempdata[3]-tempdata[1];
+		int i=0;
+		char* stamp = new char[(sw+2)*(sh+1)];
+		// Create the stamp to write to file
+		for(int y=tempdata[1]; y<=tempdata[3]; y++)
+		{
+			for(int x=tempdata[0]; x<=tempdata[2]+1; x++)
+			{
+				char pc = 'O';
+				if(x-tempdata[0] == sw+1)
+				{
+					pc = '\n';
+				}
+				else if(cells[y*gw+x]->getState())
+				{
+					pc = 'X';
+				}
+				stamp[i++] = pc;
+			}
+		}
+		try
+		{
+			ofstream f(fn);
+			f << stamp;
+			f.close();
+		}
+		catch(exception& ex)
+		{
+			msgbox(ex.what());
+		}
+	}
+	else
+	{
+		if(tutmode)
+			msgbox("Please select the area first.");
+	}
+}
+
+void load_stamp_cb(Fl_Widget* w, void* data)
+{
+	if(selectmode)
+	{
+		if(tutmode)
+			msgbox("You are in select mode. Cannot load stamp.");
+		return;
+	}
+	if(tempdata[0] == -2)
+	{
+		if(tutmode)
+			msgbox("Cancelled");
+		// Cancel
+		for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
+			tempdata[i] = -1;
+		// Callback reset
+		for(int i=0; i<cells.size(); i++)
+			cells[i]->callback(tile_cb);
+		return;
+	}
+	char* loadfn = (char*)data;
+	if(loadfn == 0)
+	{
+		// Get the file
+		loadfn = fl_file_chooser("Load Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
+		if(loadfn == NULL)
+			return;
+	}
+
+	// Assuming we've got the file, open and read it
+	vector<char> filestring;
+	int sw = 0;
+	int sh = 0;
+	try
+	{
+		ifstream f(loadfn);
+		char c;
+		while(f.get(c))
+		{
+			filestring.push_back(c);
+			if(c == '\n')
+				sh++;
+			else
+				sw++;
+		}
+		tempdata[TD_SW] = sw/sh;
+		tempdata[TD_SH] = sh;
+		f.close();
+	}
+	catch(exception& ex)
+	{
+		msgbox(ex.what());
+	}
+
+	// Check for load stamp mode
+	if(loadstampmode)
+	{
+		// If it is directed here from a button
+		int i=0;
+		for(int y=tempdata[TD_STY]; y<tempdata[TD_STY]+tempdata[TD_SH]; y++)
+		{
+			for(int x=tempdata[TD_STX]; x<tempdata[TD_STX]+tempdata[TD_SW]; x++)
+			{
+				cells[y*gw+x]->setState((filestring[i++] == 'X'? true:false));
+				cells[y*gw+x]->update_display();
+
+				if(filestring[i] == '\n')
+					i++;
+			}
+		}
+
+		// Reset everything
+		for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
+			tempdata[i] = -1;
+		// Callback reset
+		for(int i=0; i<cells.size(); i++)
+			cells[i]->callback(tile_cb);
+		loadstampmode = false;
+	}
+	else
+	{
+		// Change all button callbacks
+		for(int i=0; i<cells.size(); i++)
+		{
+			cells[i]->callback(loadstamp_button_cb, (void*)loadfn);
+		}
+		loadstampmode = true;
+	}
+}
+
+void loadstamp_button_cb(Fl_Widget* w, void* data)
+{
+	// Check for right-click. If there is right-click, cancel select.
+	if(Fl::event_button() == FL_RIGHT_MOUSE)
+	{
+		// Set to cancel
+		tempdata[0] = -2;
+	}
+	else
+	{
+		Tile* t = (Tile*)w;
+		tempdata[TD_STX] = t->getX();
+		tempdata[TD_STY] = t->getY();
+	}
+	load_stamp_cb(w, data);
 }
