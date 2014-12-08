@@ -50,16 +50,18 @@ bool loadstampmode = false;
  * tempdata[2]: x-coordinate for second corner
  * tempdata[3]: y-coordinate for second corner
  * tempdata[4]: index for the corners selected (to put coordinates in correct places)
- * tempdata[5]: x-coordinate for stamp
- * tempdata[6]: y-coordinate for stamp
+ * tempdata[5]: width of stamp
+ * tempdata[6]: height of stamp
  */
 const int TD_FX = 0;	// Tempdata first x
 const int TD_FY = 1;	// Tempdata first y
 const int TD_SX = 2;	// Tempdata second x
 const int TD_SY = 3;	// Tempdata second y
 const int TD_CI = 4;	// Tempdata corner index
-const int TD_STX = 5;	// Tempdata stamp x
-const int TD_STY = 6;	// Tempdata stamp y
+const int TD_SW = 5;	// Tempdata stamp width
+const int TD_SH = 6;	// Tempdata stamp height
+const int TD_STX = 7;	// Tempdata stamp x
+const int TD_STY = 8;	// Tempdata stamp y
 int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 // Function prototypes
