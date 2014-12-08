@@ -26,7 +26,7 @@ using namespace std;
 
 // Default/Constant variables
 const char App_Title[] = "Cellular Automata";
-const char App_Version[] = "v0.0.0";
+const char App_Version[] = "v1.0.0";
 const char App_Info[] = "Cellular Automata is a program which lets you experiment with\n"
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
