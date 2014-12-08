@@ -86,6 +86,7 @@ void inverttiles_cb(Fl_Widget*, void*);
 void save_stamp_cb(Fl_Widget*, void*);
 void load_stamp_cb(Fl_Widget*, void*);
 void loadstamp_button_cb(Fl_Widget*, void*);
+void createrule_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -115,7 +116,7 @@ Fl_Menu_Item Menu_Items[] = {
 			{0},
 		{0},
 	{"&Rules", 0, 0, 0, FL_SUBMENU},
-		{"Create Rule...", 0, not_implemented, 0, FL_MENU_DIVIDER},
+		{"Create Rule...", 0, createrule_cb, 0, FL_MENU_DIVIDER},
 		{"Game of Life", 0, change_rule_cb, 0, FL_MENU_VALUE | FL_MENU_RADIO},
 		{"HighLife", 0, change_rule_cb, (void*)1, FL_MENU_RADIO},
 		{"Maze", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
@@ -807,4 +808,27 @@ void loadstamp_button_cb(Fl_Widget* w, void* data)
 		tempdata[TD_STY] = t->getY();
 	}
 	load_stamp_cb(w, data);
+}
+
+void createrule_cb(Fl_Widget* w, void* data)
+{
+	// Ask for rulestring
+	char* rs = (char*)fl_input("Please enter you rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
+	if(rs == NULL)
+		return;
+
+	// Parse it down
+	for(int i=0; rs[i] != '\0'; i++)
+	{
+		if(rs[i] == '/')
+			Own_RS.push_back(-1);
+		else if(rs[i] >= '0' && rs[i] <= '8')
+			Own_RS.push_back(static_cast<int>(rs[i]-'0'));
+		else
+			msgbox("Error: Invalid number in rulestring.");
+	}
+
+	// Tell user
+	if(tutmode)
+		msgbox("Rulestring has been successfully parsed into program. Please select it in menu");
 }
