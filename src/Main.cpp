@@ -47,6 +47,7 @@ vector<int> currentRS = GameofLife_RS;
 
 bool selectmode = false;
 bool loadstampmode = false;
+bool projectmode = false;
 /*
  * TEMPDATA INFO
  *
@@ -93,6 +94,7 @@ void load_stamp_cb(Fl_Widget*, void*);
 void loadstamp_button_cb(Fl_Widget*, void*);
 void createrule_cb(Fl_Widget*, void*);
 void about_cb(Fl_Widget*, void*);
+void project_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -131,7 +133,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"Your own rule", 0, change_rule_cb, (void*)-1, FL_MENU_RADIO},
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
-		{"Project...", 0, not_implemented},
+		{"Project...", 0, project_cb},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
 		{"About Program", 0, about_cb},
@@ -243,7 +245,8 @@ void tick(void* step)
 		{
 			// Update only if necessary
 			cells[i]->setState(tempcells[i]);
-			cells[i]->update_display();
+			if(!projectmode)
+				cells[i]->update_display();
 		}
 	}
 
@@ -842,4 +845,32 @@ void createrule_cb(Fl_Widget* w, void* data)
 void about_cb(Fl_Widget* w, void* data)
 {
 	msgbox(string(string(App_Title) + string("\nVersion: ") + string(App_Version) + string("\n\n") + string(App_Info)).c_str());
+}
+
+void project_cb(Fl_Widget* w, void* data)
+{
+	// Asks for how much you want to project into the future
+	char* ask = (char*)fl_input("Projection");
+	if(ask == NULL)
+		return;
+
+	long times = strtol(ask, NULL, 10);
+	if(times == 0)
+		return;
+
+	// Project mode
+	projectmode = true;
+
+	for(long l=0; l<times; l++)
+	{
+		tick((void*)true);
+	}
+
+	projectmode = false;
+
+	// Update display
+	for(int i=0; i<cells.size(); i++)
+	{
+		cells[i]->update_display();
+	}
 }
