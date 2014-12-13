@@ -21,6 +21,7 @@
 
 #include "Tile.h"
 #include "Rulestring.h"
+#include "LuaHelper.h"
 
 using namespace std;
 
@@ -31,17 +32,19 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
 		"how a certain cellular automata works, or perhaps invent your own.";
-const int gw = 50;
-const int gh = 50;
-const int cw = 10;
-const int ch = 10;
-const int menuh = 30;
-const int buttonh = 50;
-const int shadefactor = 10;
-const double timeout = 0.1;
-const bool tutmode = false;
+const int gw = 50;					// Grid width
+const int gh = 50;					// Grid height
+const int cw = 10;					// Cell width (px)
+const int ch = 10;					// Cell height (px)
+const int menuh = 30;				// Menubar height (px)
+const int buttonh = 50;				// Button height (px)
+const int shadefactor = 10;			// The Shade factor (for shading out selected squares
+const double timeout = 0.1;			// The timeout between each tick (s)
+const bool tutmode = false;			// Whether we are in tutorial mode or not
 
 // Global variables
+Lua_Helper lh;
+
 vector<Tile*> cells;
 vector<int> currentRS = GameofLife_RS;
 
@@ -143,6 +146,13 @@ Fl_Menu_Item Menu_Items[] = {
 
 int main(int argc, char* argv[])
 {
+	// Load the configuration file first
+	int errs = luaL_loadfile(lh, "config.lua");		// Load file
+	lh.report_errors(errs);							// Report any errors in file
+	errs = lua_pcall(lh, 0, LUA_MULTRET, 0);		// Run file
+	lh.report_errors(errs);
+
+	// Do the graphics after loading configuration file settings
 	Fl_Double_Window* w = new Fl_Double_Window(gw*cw, gh*ch+menuh+buttonh, App_Title);
 	w->begin();
 
