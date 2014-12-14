@@ -32,15 +32,15 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
 		"how a certain cellular automata works, or perhaps invent your own.";
-const int gw = 50;					// Grid width
-const int gh = 50;					// Grid height
-const int cw = 10;					// Cell width (px)
-const int ch = 10;					// Cell height (px)
-const int menuh = 30;				// Menubar height (px)
-const int buttonh = 50;				// Button height (px)
-const int shadefactor = 10;			// The Shade factor (for shading out selected squares
-const double timeout = 0.1;			// The timeout between each tick (s)
-const bool tutmode = false;			// Whether we are in tutorial mode or not
+int gw = 50;					// Grid width
+int gh = 50;					// Grid height
+int cw = 10;					// Cell width (px)
+int ch = 10;					// Cell height (px)
+int menuh = 30;					// Menubar height (px)
+int buttonh = 50;				// Button height (px)
+int shadefactor = 10;			// The Shade factor (for shading out selected squares
+double timeout = 0.1;			// The timeout between each tick (s)
+bool tutmode = false;			// Whether we are in tutorial mode or not
 
 // Global variables
 Lua_Helper lh;
@@ -76,6 +76,7 @@ int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 // Function prototypes
 void msgbox(const char*, const char*);
 void tick(void*);
+void get_config(Lua_Helper);
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -152,6 +153,10 @@ int main(int argc, char* argv[])
 	errs = lua_pcall(lh, 0, LUA_MULTRET, 0);		// Run file
 	lh.report_errors(errs);
 
+	// Get all the numbers
+	// Can only be called after you have ran the file
+	get_config(lh);
+
 	// Do the graphics after loading configuration file settings
 	Fl_Double_Window* w = new Fl_Double_Window(gw*cw, gh*ch+menuh+buttonh, App_Title);
 	w->begin();
@@ -186,6 +191,8 @@ int main(int argc, char* argv[])
 	step_bt->tooltip("Step through simulation by one");
 
 	w->position(Fl::w()/2-w->w()/2, Fl::h()/2-w->h()/2);
+
+	w->callback(quit_cb);
 
 	w->show(argc, argv);
 
@@ -262,6 +269,32 @@ void tick(void* step)
 
 	if(!(bool)step)
 		Fl::repeat_timeout(timeout, tick);
+}
+
+void get_config(Lua_Helper L)
+{
+	// Check to see if the sizes are > 0
+	// Only occurs if someone were to spoof
+	// or if someone deleted a variable
+	// If any of that happens, just use the default
+	if(L.get<int>("gw") > 0)
+		gw = L.get<int>("gw");
+	if(L.get<int>("gh") > 0)
+		gh = L.get<int>("gh");
+	if(L.get<int>("cw") > 0)
+		cw = L.get<int>("cw");
+	if(L.get<int>("ch") > 0)
+		ch = L.get<int>("ch");
+	if(L.get<int>("menuh") > 0)
+		menuh = L.get<int>("menuh");
+	if(L.get<int>("buttonh") > 0)
+		buttonh = L.get<int>("buttonh");
+	if(L.get<int>("shadefactor") > 0)
+		shadefactor = L.get<int>("shadefactor");
+	if(L.get<double>("timeout") > 0)
+		timeout = L.get<double>("timeout");
+	// Successful no matter what because boolean value
+	tutmode = L.get<bool>("tutmode");
 }
 
 void not_implemented(Fl_Widget* w, void* data)
@@ -388,6 +421,7 @@ void open_board_cb(Fl_Widget* w, void* data)
 
 void quit_cb(Fl_Widget* w, void* data)
 {
+	lh.close();
 	exit(0);
 }
 
@@ -608,6 +642,10 @@ void select_square_cb(Fl_Widget* w, void* data)
 		// Reset the temporary data
 		for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
 			tempdata[i] = -1;
+
+		// Tutorial mode
+		if(tutmode)
+			msgbox("Cancelled");
 	}
 }
 

@@ -22,7 +22,6 @@ Lua_Helper::Lua_Helper()
 
 Lua_Helper::~Lua_Helper()
 {
-	lua_close(state);
 }
 
 /* To report errors */
@@ -59,5 +58,10 @@ template<>
 char* Lua_Helper::lua_get<char*>()
 {
 	return (char*)lua_tostring(this->state, -1);
+}
+
+void Lua_Helper::close()
+{
+	lua_close(this->state);
 }
 

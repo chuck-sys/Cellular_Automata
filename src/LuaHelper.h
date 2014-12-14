@@ -21,7 +21,7 @@ private:
 	lua_State* state;
 public:
 	Lua_Helper();
-	virtual ~Lua_Helper();
+	~Lua_Helper();
 
 	// Implicitly act as lua_State pointer
 	inline operator lua_State*() {
@@ -49,6 +49,9 @@ public:
 
 	// Report errors
 	void report_errors(int);
+
+	// Close it
+	void close();
 };
 
 
