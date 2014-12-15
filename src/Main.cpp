@@ -133,7 +133,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{"HighLife", 0, change_rule_cb, (void*)1, FL_MENU_RADIO},
 		{"Maze", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
 		{"Mazectric", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
-		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO | FL_MENU_DIVIDER},
+		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
 		{"Your own rule", 0, change_rule_cb, (void*)-1, FL_MENU_RADIO},
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
@@ -466,7 +466,7 @@ void change_rule_cb(Fl_Widget* w, void* data)
 		if(Own_RS.size() == 0)
 		{
 			// If you haven't established your own ruleset, just ask
-			not_implemented(w, data);
+			createrule_cb(w, data);
 		}
 		currentRS = Own_RS;
 		break;

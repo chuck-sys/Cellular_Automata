@@ -3,7 +3,7 @@
 -- Grid sizes:
 --		gw	-	Grid Width
 --		gh	-	Grid Height
-gw = 50
+gw = 70
 gh = 50
 
 -- Cell sizes (px):
