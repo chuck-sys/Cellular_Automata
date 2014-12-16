@@ -20,6 +20,8 @@ computer:
 - GNU make v3.8 or higher
 - FLTK v1.3 or higher
 
+The correct LUA libraries are included in the source.
+
 Do:
 
 	make clean
