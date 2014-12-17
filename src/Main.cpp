@@ -77,6 +77,7 @@ int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 void msgbox(const char*, const char*);
 void tick(void*);
 void get_config(Lua_Helper);
+int abs(int);
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -129,12 +130,12 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"&Rules", 0, 0, 0, FL_SUBMENU},
 		{"Create Rule...", 0, createrule_cb, 0, FL_MENU_DIVIDER},
-		{"Game of Life", 0, change_rule_cb, 0, FL_MENU_VALUE | FL_MENU_RADIO},
-		{"HighLife", 0, change_rule_cb, (void*)1, FL_MENU_RADIO},
-		{"Maze", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
-		{"Mazectric", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
-		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
-		{"Your own rule", 0, change_rule_cb, (void*)-1, FL_MENU_RADIO},
+		{"Game of Life", 0, change_rule_cb, (void*)1, FL_MENU_VALUE | FL_MENU_RADIO},
+		{"HighLife", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
+		{"Maze", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
+		{"Mazectric", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
+		{"Replicator", 0, change_rule_cb, (void*)5, FL_MENU_RADIO},
+		{"Your own rule", 0, change_rule_cb, (void*)0, FL_MENU_RADIO},
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
 		{"Project...", 0, project_cb},
@@ -295,6 +296,16 @@ void get_config(Lua_Helper L)
 		timeout = L.get<double>("timeout");
 	// Successful no matter what because boolean value
 	tutmode = L.get<bool>("tutmode");
+}
+
+inline int abs(int num)
+{
+	// The absolute value function
+	// Returns negated number if smaller than zero
+	if(num < 0)
+		return -num;
+	else
+		return num;
 }
 
 void not_implemented(Fl_Widget* w, void* data)
@@ -459,41 +470,23 @@ void drag_cb(Fl_Widget* w, void* data)
 
 void change_rule_cb(Fl_Widget* w, void* data)
 {
-	switch((long)data)
+	if((long)data == 0)
 	{
-	case -1:
-		// #-1	Your own rule
-		if(Own_RS.size() == 0)
+		if(All_RS[0].size() == 0)
 		{
 			// If you haven't established your own ruleset, just ask
 			createrule_cb(w, data);
 		}
-		currentRS = Own_RS;
-		break;
-	case 0:
-		// #0	Game of Life
-		currentRS = GameofLife_RS;
-		break;
-	case 1:
-		// #1	HighLife
-		currentRS = HighLife_RS;
-		break;
-	case 2:
-		// #2	Maze
-		currentRS = Maze_RS;
-		break;
-	case 3:
-		// #3	Mazectric
-		currentRS = Mazectric_RS;
-		break;
-	case 4:
-		// #4	Replicator
-		currentRS = Replicator_RS;
-		break;
-	default:
-		// Default is 0 (Game of Life)
-		currentRS = GameofLife_RS;
-		break;
+	}
+	else
+	{
+		// If ruleset exists, do it
+		// If it doesn't exist, do Game of Life (1)
+		int rsnum = abs((long)data);
+		if(rsnum < All_RS.size())
+			currentRS = All_RS[(long)data];
+		else
+			currentRS = All_RS[1];
 	}
 }
 
@@ -870,9 +863,14 @@ void loadstamp_button_cb(Fl_Widget* w, void* data)
 void createrule_cb(Fl_Widget* w, void* data)
 {
 	// Ask for rulestring
-	char* rs = (char*)fl_input("Please enter you rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
-	if(rs == NULL)
-		return;
+	// If rulestring is already a parameter, parse it
+	char* rs = (char*)data;
+	if(rs == 0)
+	{
+		char* rs = (char*)fl_input("Please enter you rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
+		if(rs == NULL)
+			return;
+	}
 
 	// Parse it down
 	for(int i=0; rs[i] != '\0'; i++)
