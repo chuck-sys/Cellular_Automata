@@ -73,11 +73,15 @@ const int TD_STX = 7;	// Tempdata stamp x
 const int TD_STY = 8;	// Tempdata stamp y
 int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
+// Global FL variables
+Fl_Menu_Bar* menu;
+
 // Function prototypes
 void msgbox(const char*, const char*);
 void tick(void*);
 void get_config(Lua_Helper);
 int abs(int);
+void rs_init();
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -148,6 +152,9 @@ Fl_Menu_Item Menu_Items[] = {
 
 int main(int argc, char* argv[])
 {
+	// Initialize rulestrings
+	rs_init();
+
 	// Load the configuration file first
 	int errs = luaL_loadfile(lh, "config.lua");		// Load file
 	lh.report_errors(errs);							// Report any errors in file
@@ -175,7 +182,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Now for the menubar
-	Fl_Menu_Bar* menu = new Fl_Menu_Bar(0, 0, w->w()+1, menuh);
+	menu = new Fl_Menu_Bar(0, 0, w->w()+1, menuh);
 
 	// The play button
 	Fl_Button* play_bt = new Fl_Button(0, ch*gh+menuh, w->w()/2, buttonh, "@>");
@@ -306,6 +313,17 @@ inline int abs(int num)
 		return -num;
 	else
 		return num;
+}
+
+void rs_init()
+{
+	// Puts all the rulestrings into a vector of vectors
+	All_RS.push_back(Own_RS);
+	All_RS.push_back(GameofLife_RS);
+	All_RS.push_back(HighLife_RS);
+	All_RS.push_back(Maze_RS);
+	All_RS.push_back(Mazectric_RS);
+	All_RS.push_back(Replicator_RS);
 }
 
 void not_implemented(Fl_Widget* w, void* data)
@@ -876,9 +894,9 @@ void createrule_cb(Fl_Widget* w, void* data)
 	for(int i=0; rs[i] != '\0'; i++)
 	{
 		if(rs[i] == '/')
-			Own_RS.push_back(-1);
+			All_RS[0].push_back(-1);
 		else if(rs[i] >= '0' && rs[i] <= '8')
-			Own_RS.push_back(static_cast<int>(rs[i]-'0'));
+			All_RS[0].push_back(static_cast<int>(rs[i]-'0'));
 		else
 			msgbox("Error: Invalid number in rulestring.");
 	}
@@ -900,6 +918,7 @@ void project_cb(Fl_Widget* w, void* data)
 	if(ask == NULL)
 		return;
 
+	// Converts string to long
 	long times = strtol(ask, NULL, 10);
 	if(times == 0)
 		return;
