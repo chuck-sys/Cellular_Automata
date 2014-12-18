@@ -26,9 +26,6 @@ using namespace std;
 // All the rulesets
 vector< vector<int> > All_RS;
 
-// Your own rule
-vector<int> Own_RS;
-
 // Game of Life
 vector<int> GameofLife_RS {2, 3, -1, 3};
 

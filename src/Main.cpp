@@ -82,6 +82,7 @@ void tick(void*);
 void get_config(Lua_Helper);
 int abs(int);
 void rs_init();
+int lua_createrule(lua_State*);
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -134,12 +135,11 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"&Rules", 0, 0, 0, FL_SUBMENU},
 		{"Create Rule...", 0, createrule_cb, 0, FL_MENU_DIVIDER},
-		{"Game of Life", 0, change_rule_cb, (void*)1, FL_MENU_VALUE | FL_MENU_RADIO},
-		{"HighLife", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
-		{"Maze", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
-		{"Mazectric", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
-		{"Replicator", 0, change_rule_cb, (void*)5, FL_MENU_RADIO},
-		{"Your own rule", 0, change_rule_cb, (void*)0, FL_MENU_RADIO},
+		{"Game of Life", 0, change_rule_cb, (void*)0, FL_MENU_VALUE | FL_MENU_RADIO},
+		{"HighLife", 0, change_rule_cb, (void*)1, FL_MENU_RADIO},
+		{"Maze", 0, change_rule_cb, (void*)2, FL_MENU_RADIO},
+		{"Mazectric", 0, change_rule_cb, (void*)3, FL_MENU_RADIO},
+		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
 		{"Project...", 0, project_cb},
@@ -154,6 +154,10 @@ int main(int argc, char* argv[])
 {
 	// Initialize rulestrings
 	rs_init();
+
+	// Put function into lua
+	lua_pushcfunction(lh, lua_createrule);
+	lua_setglobal(lh, "createrule");
 
 	// Load the configuration file first
 	int errs = luaL_loadfile(lh, "config.lua");		// Load file
@@ -201,6 +205,12 @@ int main(int argc, char* argv[])
 	w->position(Fl::w()/2-w->w()/2, Fl::h()/2-w->h()/2);
 
 	w->callback(quit_cb);
+
+	// Now load the autorun/functions file
+	errs = luaL_loadfile(lh, "autorun.lua");	// Load file
+	lh.report_errors(errs);							// Report any errors in file
+	errs = lua_pcall(lh, 0, LUA_MULTRET, 0);		// Run file
+	lh.report_errors(errs);
 
 	w->show(argc, argv);
 
@@ -318,12 +328,36 @@ inline int abs(int num)
 void rs_init()
 {
 	// Puts all the rulestrings into a vector of vectors
-	All_RS.push_back(Own_RS);
 	All_RS.push_back(GameofLife_RS);
 	All_RS.push_back(HighLife_RS);
 	All_RS.push_back(Maze_RS);
 	All_RS.push_back(Mazectric_RS);
 	All_RS.push_back(Replicator_RS);
+}
+
+int lua_createrule(lua_State* L)
+{
+	// (Hopefully) called by lua
+	char* rs = (char*)lua_tostring(L, 1);			// The rulestring (second argument)
+	char* name = (char*)lua_tostring(L, 2);			// The name of rulestring (first argument)
+	lua_pop(L, 2);
+
+	vector<int> My_RS;
+	for(int i=0; rs[i] != '\0'; i++)
+	{
+		if(rs[i] == '/')
+			My_RS.push_back(-1);
+		else if(rs[i] >= '0' && rs[i] <= '8')
+			My_RS.push_back(static_cast<int>(rs[i]-'0'));
+		else
+			cerr << "Error: Invalid number in rulestring." << endl;
+	}
+
+	string sname = "Rules/" + string(name);
+	menu->add(sname.c_str(), 0, change_rule_cb, (void*)All_RS.size(), FL_MENU_RADIO);
+	All_RS.push_back(My_RS);
+
+	return 0;
 }
 
 void not_implemented(Fl_Widget* w, void* data)
@@ -880,26 +914,58 @@ void loadstamp_button_cb(Fl_Widget* w, void* data)
 
 void createrule_cb(Fl_Widget* w, void* data)
 {
+	// Parameter format: "RS NAME"
 	// Ask for rulestring
 	// If rulestring is already a parameter, parse it
-	char* rs = (char*)data;
-	if(rs == 0)
+	char* dt = (char*)data;
+	if(dt == 0)
 	{
-		char* rs = (char*)fl_input("Please enter you rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
-		if(rs == NULL)
+		dt = (char*)fl_input("Please enter your rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
+		if(dt == NULL)
 			return;
 	}
 
-	// Parse it down
-	for(int i=0; rs[i] != '\0'; i++)
+	// Parse the name
+	bool spacegone = false;
+	string sname = "";
+	string srs = "";
+	for(int i=0; dt[i] != 0; i++)
 	{
-		if(rs[i] == '/')
-			All_RS[0].push_back(-1);
-		else if(rs[i] >= '0' && rs[i] <= '8')
-			All_RS[0].push_back(static_cast<int>(rs[i]-'0'));
+		if(spacegone)
+			sname += dt[i];
+		else
+			srs += dt[i];
+		if(dt[i] == ' ')
+			spacegone = true;
+	}
+	// If there is no name, ask for one
+	if(sname == "")
+	{
+		char* name = (char*)fl_input("Please enter the name for the rulestring");
+		if(name == NULL)
+			return;
+		sname = (string)name;
+	}
+
+	// Parse it down
+	vector<int> My_RS;
+	for(int i=0; srs.c_str()[i] != '\0'; i++)
+	{
+		if(srs.c_str()[i] == '/')
+			My_RS.push_back(-1);
+		else if(srs.c_str()[i] >= '0' && srs.c_str()[i] <= '8')
+			My_RS.push_back(static_cast<int>(srs.c_str()[i]-'0'));
 		else
 			msgbox("Error: Invalid number in rulestring.");
 	}
+
+	sname = "Rules/"+sname;
+
+	// Put everything into the menu
+	menu->add(sname.c_str(), 0, change_rule_cb, (void*)All_RS.size(), FL_MENU_RADIO);
+
+	// Put everything into vector
+	All_RS.push_back(My_RS);
 
 	// Tell user
 	if(tutmode)
