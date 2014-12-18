@@ -338,8 +338,8 @@ void rs_init()
 int lua_createrule(lua_State* L)
 {
 	// (Hopefully) called by lua
-	char* rs = (char*)lua_tostring(L, 1);			// The rulestring (second argument)
-	char* name = (char*)lua_tostring(L, 2);			// The name of rulestring (first argument)
+	char* name = (char*)lua_tostring(L, 1);			// The name of rulestring (first argument)
+	char* rs = (char*)lua_tostring(L, 2);			// The rulestring (second argument)
 	lua_pop(L, 2);
 
 	vector<int> My_RS;

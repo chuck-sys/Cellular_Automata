@@ -1,6 +1,9 @@
 -- Autorun file for Cellular Automata
 -- Here, you may use functions and declare functions
-createrule("/2", "Seeds")
+--
+-- Some rule creations
+-- createrule(name, rule)
+createrule("Seeds", "/2")
 
 -- Comment out if you don't want text
 -- displayed on startup
