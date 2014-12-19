@@ -48,7 +48,7 @@ public:
 	}
 
 	// Report errors
-	void report_errors(int);
+	bool report_errors(int);
 
 	// Close it
 	void close();

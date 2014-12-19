@@ -295,22 +295,38 @@ void get_config(Lua_Helper L)
 	// Only occurs if someone were to spoof
 	// or if someone deleted a variable
 	// If any of that happens, just use the default
-	if(L.get<int>("gw") > 0)
+	if(L.get<int>("gw") > 0 && L.get<int>("gw"))
+	{
 		gw = L.get<int>("gw");
-	if(L.get<int>("gh") > 0)
+	}
+	if(L.get<int>("gh") > 0 && L.get<int>("gh"))
+	{
 		gh = L.get<int>("gh");
-	if(L.get<int>("cw") > 0)
+	}
+	if(L.get<int>("cw") > 0 && L.get<int>("cw"))
+	{
 		cw = L.get<int>("cw");
-	if(L.get<int>("ch") > 0)
+	}
+	if(L.get<int>("ch") > 0 && L.get<int>("ch"))
+	{
 		ch = L.get<int>("ch");
-	if(L.get<int>("menuh") > 0)
+	}
+	if(L.get<int>("menuh") > 0 && L.get<int>("menuh"))
+	{
 		menuh = L.get<int>("menuh");
-	if(L.get<int>("buttonh") > 0)
+	}
+	if(L.get<int>("buttonh") > 0 && L.get<int>("buttonh"))
+	{
 		buttonh = L.get<int>("buttonh");
-	if(L.get<int>("shadefactor") > 0)
+	}
+	if(L.get<int>("shadefactor") > 0 && L.get<int>("shadefactor"))
+	{
 		shadefactor = L.get<int>("shadefactor");
-	if(L.get<double>("timeout") > 0)
+	}
+	if(L.get<double>("timeout") > 0 && L.get<double>("timeout"))
+	{
 		timeout = L.get<double>("timeout");
+	}
 	// Successful no matter what because boolean value
 	tutmode = L.get<bool>("tutmode");
 }

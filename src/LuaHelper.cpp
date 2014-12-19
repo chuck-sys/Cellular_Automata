@@ -25,7 +25,7 @@ Lua_Helper::~Lua_Helper()
 }
 
 /* To report errors */
-void Lua_Helper::report_errors(int status)
+bool Lua_Helper::report_errors(int status)
 {
 	if(status != 0)
 	{
@@ -33,7 +33,10 @@ void Lua_Helper::report_errors(int status)
 		cerr << "-- " << lua_tostring(this->state, -1) << endl;
 		// Pop value from stack
 		lua_pop(this->state, 1);
+
+		return true;
 	}
+	return false;
 }
 
 template<>
@@ -45,19 +48,28 @@ bool Lua_Helper::lua_get<bool>()
 template<>
 int Lua_Helper::lua_get<int>()
 {
-	return (int)lua_tonumber(this->state, -1);
+	if(lua_isnumber(this->state, -1))
+		return (int)lua_tonumber(this->state, -1);
+	else
+		return NULL;
 }
 
 template<>
 double Lua_Helper::lua_get<double>()
 {
-	return (double)lua_tonumber(this->state, -1);
+	if(lua_isnumber(this->state, -1))
+		return (double)lua_tonumber(this->state, -1);
+	else
+		return NULL;
 }
 
 template<>
 char* Lua_Helper::lua_get<char*>()
 {
-	return (char*)lua_tostring(this->state, -1);
+	if(lua_isstring(this->state, -1))
+		return (char*)lua_tostring(this->state, -1);
+	else
+		return NULL;
 }
 
 void Lua_Helper::close()
