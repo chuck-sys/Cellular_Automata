@@ -18,6 +18,9 @@ menuh = 30
 -- Button height
 buttonh = 50
 
+-- Text editor width
+txteditw = 300
+
 -- Shade factor
 -- For shading out selected squares
 shadefactor = 10
