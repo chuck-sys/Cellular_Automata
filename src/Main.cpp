@@ -83,6 +83,7 @@ void get_config(Lua_Helper);
 int abs(int);
 void rs_init();
 int lua_createrule(lua_State*);
+int lua_rgb_col(lua_State*);
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -155,9 +156,11 @@ int main(int argc, char* argv[])
 	// Initialize rulestrings
 	rs_init();
 
-	// Put function into lua
+	// Put functions into lua
 	lua_pushcfunction(lh, lua_createrule);
 	lua_setglobal(lh, "createrule");
+	lua_pushcfunction(lh, lua_rgb_col);
+	lua_setglobal(lh, "rgb_col");
 
 	// Load the configuration file first
 	int errs = luaL_loadfile(lh, "config.lua");		// Load file
@@ -225,10 +228,21 @@ void msgbox(const char* msg, const char* title=App_Title)
 
 void tick(void* step)
 {
+	int tempfx, tempfy, tempsx, tempsy;
+	tempfx = 0; tempfy = 0; tempsx = gw-1; tempsy = gh-1;
 	bool tempcells[gw*gh];				// Temporary array
-	for(int y=0; y<gh; y++)
+	if(selectmode && tempdata[TD_CI] == -1)
 	{
-		for(int x=0; x<gw; x++)
+		tempfx = tempdata[TD_FX];
+		tempfy = tempdata[TD_FY];
+		tempsx = tempdata[TD_SX];
+		tempsy = tempdata[TD_SY];
+		for(int i=0; i<gw*gh; i++)
+			tempcells[i] = cells[i]->getState();	// Initialize temperary array
+	}
+	for(int y=tempfy; y<=tempsy; y++)
+	{
+		for(int x=tempfx; x<=tempsx; x++)
 		{
 			int aroundtiles = 0;
 			// The offsets
@@ -236,7 +250,7 @@ void tick(void* step)
 			{
 				for(short ofx=-1; ofx<2; ofx++)
 				{
-					if(((x+ofx>=0) && (y+ofy>=0) && (x+ofx < gw) && (y+ofy < gh) && !((ofx == 0) && (ofy == 0))))
+					if(((x+ofx>=0) && (y+ofy>=0) && (x+ofx <= tempsx) && (y+ofy <= tempsy) && !((ofx == 0) && (ofy == 0))))
 					{
 						aroundtiles += int(cells[(y+ofy)*gw+x+ofx]->getState());
 					}
@@ -323,6 +337,14 @@ void get_config(Lua_Helper L)
 	{
 		shadefactor = L.get<int>("shadefactor");
 	}
+	if(L.get<int>("backcol"))
+	{
+		Tile::DeadCol = L.get<int>("backcol");
+	}
+	if(L.get<int>("forecol"))
+	{
+		Tile::AliveCol = L.get<int>("forecol");
+	}
 	if(L.get<double>("timeout") > 0 && L.get<double>("timeout"))
 	{
 		timeout = L.get<double>("timeout");
@@ -374,6 +396,20 @@ int lua_createrule(lua_State* L)
 	All_RS.push_back(My_RS);
 
 	return 0;
+}
+
+int lua_rgb_col(lua_State* L)
+{
+	// Takes 3 arguments: r=[0,255], g=[0,255], b=[0,255]
+	int r = (int)lua_tonumber(L, 1);
+	int g = (int)lua_tonumber(L, 2);
+	int b = (int)lua_tonumber(L, 3);
+	int res = fl_rgb_color(r, g, b);
+	// Pop out 3 arguments
+	lua_pop(L, 3);
+
+	lua_pushnumber(L, res);
+	return 1;
 }
 
 void not_implemented(Fl_Widget* w, void* data)
