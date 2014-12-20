@@ -34,7 +34,7 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
 		"how a certain cellular automata works, or perhaps invent your own.";
-const int txteditw = 200;		// Width of text editor
+int txteditw = 300;		// Width of text editor
 int gw = 50;					// Grid width
 int gh = 50;					// Grid height
 int cw = 10;					// Cell width (px)
@@ -118,6 +118,7 @@ void about_cb(Fl_Widget*, void*);
 void project_cb(Fl_Widget*, void*);
 void toggle_console_cb(Fl_Widget*, void*);
 void run_lua_script_cb(Fl_Widget*, void*);
+void os_script_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -157,6 +158,8 @@ Fl_Menu_Item Menu_Items[] = {
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
 		{"Project...", 0, project_cb, 0, FL_MENU_DIVIDER},
 		{"Toggle Lua Console", 0, toggle_console_cb},
+		{"Open Script", 0, os_script_cb, 0},
+		{"Save Script", 0, os_script_cb, (void*)1},
 		{"Run Script", 0, run_lua_script_cb},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
@@ -327,45 +330,71 @@ void get_config(Lua_Helper L)
 	// Only occurs if someone were to spoof
 	// or if someone deleted a variable
 	// If any of that happens, just use the default
-	if(L.get<int>("gw") > 0 && L.get<int>("gw"))
+	int temp = 0;
+	temp = L.get<int>("txteditw");
+	if(temp > 0 && temp)
 	{
-		gw = L.get<int>("gw");
+		txteditw = temp;
 	}
-	if(L.get<int>("gh") > 0 && L.get<int>("gh"))
+
+	temp = L.get<int>("gw");
+	if(temp > 0 && temp)
 	{
-		gh = L.get<int>("gh");
+		gw = temp;
 	}
-	if(L.get<int>("cw") > 0 && L.get<int>("cw"))
+
+	temp = L.get<int>("gh");
+	if(temp > 0 && temp)
 	{
-		cw = L.get<int>("cw");
+		gh = temp;
 	}
-	if(L.get<int>("ch") > 0 && L.get<int>("ch"))
+
+	temp = L.get<int>("cw");
+	if(temp > 0 && temp)
 	{
-		ch = L.get<int>("ch");
+		cw = temp;
 	}
-	if(L.get<int>("menuh") > 0 && L.get<int>("menuh"))
+
+	temp = L.get<int>("ch");
+	if(temp > 0 && temp)
 	{
-		menuh = L.get<int>("menuh");
+		ch = temp;
 	}
-	if(L.get<int>("buttonh") > 0 && L.get<int>("buttonh"))
+
+	temp = L.get<int>("menuh");
+	if(temp > 0 && temp)
 	{
-		buttonh = L.get<int>("buttonh");
+		menuh = temp;
 	}
-	if(L.get<int>("shadefactor") > 0 && L.get<int>("shadefactor"))
+
+	temp = L.get<int>("buttonh");
+	if(temp > 0 && temp)
 	{
-		shadefactor = L.get<int>("shadefactor");
+		buttonh = temp;
 	}
-	if(L.get<int>("backcol"))
+
+	temp = L.get<int>("shadefactor");
+	if(temp > 0 && temp)
 	{
-		Tile::DeadCol = L.get<int>("backcol");
+		shadefactor = temp;
 	}
-	if(L.get<int>("forecol"))
+
+	temp = L.get<int>("backcol");
+	if(temp > 0 && temp)
 	{
-		Tile::AliveCol = L.get<int>("forecol");
+		Tile::DeadCol = temp;
 	}
-	if(L.get<double>("timeout") > 0 && L.get<double>("timeout"))
+
+	temp = L.get<int>("forecol");
+	if(temp > 0 && temp)
 	{
-		timeout = L.get<double>("timeout");
+		Tile::AliveCol = temp;
+	}
+
+	double dtemp = L.get<double>("timeout");
+	if(dtemp > 0 && dtemp)
+	{
+		timeout = dtemp;
 	}
 	// Successful no matter what because boolean value
 	tutmode = L.get<bool>("tutmode");
@@ -1147,7 +1176,7 @@ void toggle_console_cb(Fl_Widget* w, void* data)
 	}
 }
 
-void run_lua_script_cb(Fl_Widget*, void*)
+void run_lua_script_cb(Fl_Widget* w, void* data)
 {
 	// Get the buffer text
 	char* script = scriptbuf->text();
@@ -1159,5 +1188,36 @@ void run_lua_script_cb(Fl_Widget*, void*)
 		// Print any errors
 		msgbox(lua_tostring(lh, -1), "Lua Script");
 		lua_pop(lh, 1);
+	}
+}
+
+void os_script_cb(Fl_Widget* w, void* data)
+{
+	char const* txt = NULL;
+	// Check for open/save file operation (slightly different, so put them together)
+	if((long)data == 1)
+	{
+		// If save script
+		txt = "Save Lua Script";
+	}
+	else
+	{
+		// If load script
+		txt = "Open Lua Script";
+	}
+	// Get filename
+	char* fn = fl_file_chooser(txt, "Lua File (*.lua)|All Files (*.*)", ".");
+	if(fn == NULL)
+		return;
+
+	if((long)data == 1)
+	{
+		// Save file
+		scriptbuf->savefile(fn);
+	}
+	else
+	{
+		// Load file
+		scriptbuf->loadfile(fn);
 	}
 }
