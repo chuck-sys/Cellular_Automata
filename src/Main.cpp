@@ -17,6 +17,8 @@
 #include <FL/Fl_Menu_Bar.H>
 #include <FL/Fl_Menu_Item.H>
 #include <FL/Fl_File_Chooser.H>
+#include <FL/Fl_Text_Editor.H>
+#include <FL/Fl_Text_Buffer.H>
 #include <FL/fl_message.H>
 
 #include "Tile.h"
@@ -75,6 +77,7 @@ int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 // Global FL variables
 Fl_Menu_Bar* menu;
+Fl_Text_Buffer* scriptbuf;
 
 // Function prototypes
 void msgbox(const char*, const char*);
@@ -82,6 +85,7 @@ void tick(void*);
 void get_config(Lua_Helper);
 int abs(int);
 void rs_init();
+void lua_funcinit();
 int lua_createrule(lua_State*);
 int lua_rgb_col(lua_State*);
 
@@ -144,6 +148,7 @@ Fl_Menu_Item Menu_Items[] = {
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
 		{"Project...", 0, project_cb},
+		{"Toggle Lua Console", 0, not_implemented},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
 		{"About Program", 0, about_cb},
@@ -156,11 +161,8 @@ int main(int argc, char* argv[])
 	// Initialize rulestrings
 	rs_init();
 
-	// Put functions into lua
-	lua_pushcfunction(lh, lua_createrule);
-	lua_setglobal(lh, "createrule");
-	lua_pushcfunction(lh, lua_rgb_col);
-	lua_setglobal(lh, "rgb_col");
+	// Load functions to lua
+	lua_funcinit();
 
 	// Load the configuration file first
 	int errs = luaL_loadfile(lh, "config.lua");		// Load file
@@ -195,6 +197,8 @@ int main(int argc, char* argv[])
 	Fl_Button* play_bt = new Fl_Button(0, ch*gh+menuh, w->w()/2, buttonh, "@>");
 	// The step button
 	Fl_Button* step_bt = new Fl_Button(w->w()/2, ch*gh+menuh, w->w()/2, buttonh, "@->|");
+	// The textbox
+	Fl_Text_Editor* edit = new Fl_Text_Editor(w->w(), 0, 200, w->h());
 
 	w->end();
 
@@ -205,6 +209,7 @@ int main(int argc, char* argv[])
 	play_bt->tooltip("Play/Start the simulation");
 	step_bt->tooltip("Step through simulation by one");
 
+	// Position window in the middle
 	w->position(Fl::w()/2-w->w()/2, Fl::h()/2-w->h()/2);
 
 	w->callback(quit_cb);
@@ -373,6 +378,15 @@ void rs_init()
 	All_RS.push_back(Replicator_RS);
 }
 
+void lua_funcinit()
+{
+	// Put functions into lua
+	lua_pushcfunction(lh, lua_createrule);
+	lua_setglobal(lh, "createrule");
+	lua_pushcfunction(lh, lua_rgb_col);
+	lua_setglobal(lh, "rgb_col");
+}
+
 int lua_createrule(lua_State* L)
 {
 	// (Hopefully) called by lua
@@ -428,7 +442,7 @@ void save_board_cb(Fl_Widget* w, void* data)
 {
 	// Uses ASCII art to save
 	// Asks user for filename
-	char* fn = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", "/home/");
+	char* fn = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", ".");
 	if(fn == NULL)
 	{
 		// If user cancelled
@@ -469,7 +483,7 @@ void save_board_cb(Fl_Widget* w, void* data)
 void open_board_cb(Fl_Widget* w, void* data)
 {
 	// Asks user for filename
-	char* fn = fl_file_chooser("Open Board", "Cellular Automata (*.ca)| All Files (*.*)", "/home/");
+	char* fn = fl_file_chooser("Open Board", "Cellular Automata (*.ca)| All Files (*.*)", ".");
 	if(fn == NULL)
 	{
 		// If user cancelled
