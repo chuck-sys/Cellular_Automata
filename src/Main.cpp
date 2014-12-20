@@ -34,6 +34,7 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
 		"how a certain cellular automata works, or perhaps invent your own.";
+const int txteditw = 200;		// Width of text editor
 int gw = 50;					// Grid width
 int gh = 50;					// Grid height
 int cw = 10;					// Cell width (px)
@@ -50,6 +51,7 @@ Lua_Helper lh;
 vector<Tile*> cells;
 vector<int> currentRS = GameofLife_RS;
 
+bool extendedmode = false;
 bool selectmode = false;
 bool loadstampmode = false;
 bool projectmode = false;
@@ -78,6 +80,7 @@ int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 // Global FL variables
 Fl_Menu_Bar* menu;
 Fl_Text_Buffer* scriptbuf;
+Fl_Double_Window* window;
 
 // Function prototypes
 void msgbox(const char*, const char*);
@@ -86,8 +89,11 @@ void get_config(Lua_Helper);
 int abs(int);
 void rs_init();
 void lua_funcinit();
+
 int lua_createrule(lua_State*);
 int lua_rgb_col(lua_State*);
+int lua_msgbox(lua_State*);
+int lua_toggle(lua_State*);
 
 void not_implemented(Fl_Widget*, void*);
 void tile_cb(Fl_Widget*, void*);
@@ -110,6 +116,8 @@ void loadstamp_button_cb(Fl_Widget*, void*);
 void createrule_cb(Fl_Widget*, void*);
 void about_cb(Fl_Widget*, void*);
 void project_cb(Fl_Widget*, void*);
+void toggle_console_cb(Fl_Widget*, void*);
+void run_lua_script_cb(Fl_Widget*, void*);
 
 // All the separate menu items
 Fl_Menu_Item Menu_Items[] = {
@@ -147,8 +155,9 @@ Fl_Menu_Item Menu_Items[] = {
 		{"Replicator", 0, change_rule_cb, (void*)4, FL_MENU_RADIO},
 		{0},
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
-		{"Project...", 0, project_cb},
-		{"Toggle Lua Console", 0, not_implemented},
+		{"Project...", 0, project_cb, 0, FL_MENU_DIVIDER},
+		{"Toggle Lua Console", 0, toggle_console_cb},
+		{"Run Script", 0, run_lua_script_cb},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
 		{"About Program", 0, about_cb},
@@ -175,8 +184,8 @@ int main(int argc, char* argv[])
 	get_config(lh);
 
 	// Do the graphics after loading configuration file settings
-	Fl_Double_Window* w = new Fl_Double_Window(gw*cw, gh*ch+menuh+buttonh, App_Title);
-	w->begin();
+	window = new Fl_Double_Window(gw*cw, gh*ch+menuh+buttonh, App_Title);
+	window->begin();
 
 	// Add all the cells in
 	for(int y=0; y<gh; y++)
@@ -191,28 +200,32 @@ int main(int argc, char* argv[])
 	}
 
 	// Now for the menubar
-	menu = new Fl_Menu_Bar(0, 0, w->w()+1, menuh);
+	menu = new Fl_Menu_Bar(0, 0, window->w()+1, menuh);
 
 	// The play button
-	Fl_Button* play_bt = new Fl_Button(0, ch*gh+menuh, w->w()/2, buttonh, "@>");
+	Fl_Button* play_bt = new Fl_Button(0, ch*gh+menuh, window->w()/2, buttonh, "@>");
 	// The step button
-	Fl_Button* step_bt = new Fl_Button(w->w()/2, ch*gh+menuh, w->w()/2, buttonh, "@->|");
+	Fl_Button* step_bt = new Fl_Button(window->w()/2, ch*gh+menuh, window->w()/2, buttonh, "@->|");
 	// The textbox
-	Fl_Text_Editor* edit = new Fl_Text_Editor(w->w(), 0, 200, w->h());
+	Fl_Text_Editor* edit = new Fl_Text_Editor(window->w(), 0, txteditw, window->h());
 
-	w->end();
+	window->end();
+
+	scriptbuf = new Fl_Text_Buffer;
 
 	menu->copy(Menu_Items);
 	play_bt->callback(play_cb);
 	step_bt->callback(step_cb);
+	edit->buffer(scriptbuf);
+	edit->textfont(FL_COURIER);
 
 	play_bt->tooltip("Play/Start the simulation");
 	step_bt->tooltip("Step through simulation by one");
 
 	// Position window in the middle
-	w->position(Fl::w()/2-w->w()/2, Fl::h()/2-w->h()/2);
+	window->position(Fl::w()/2-window->w()/2, Fl::h()/2-window->h()/2);
 
-	w->callback(quit_cb);
+	window->callback(quit_cb);
 
 	// Now load the autorun/functions file
 	errs = luaL_loadfile(lh, "autorun.lua");	// Load file
@@ -220,7 +233,7 @@ int main(int argc, char* argv[])
 	errs = lua_pcall(lh, 0, LUA_MULTRET, 0);		// Run file
 	lh.report_errors(errs);
 
-	w->show(argc, argv);
+	window->show(argc, argv);
 
 	return Fl::run();
 }
@@ -385,6 +398,10 @@ void lua_funcinit()
 	lua_setglobal(lh, "createrule");
 	lua_pushcfunction(lh, lua_rgb_col);
 	lua_setglobal(lh, "rgb_col");
+	lua_pushcfunction(lh, lua_msgbox);
+	lua_setglobal(lh, "msgbox");
+	lua_pushcfunction(lh, lua_toggle);
+	lua_setglobal(lh, "toggle");
 }
 
 int lua_createrule(lua_State* L)
@@ -424,6 +441,48 @@ int lua_rgb_col(lua_State* L)
 
 	lua_pushnumber(L, res);
 	return 1;
+}
+
+int lua_msgbox(lua_State* L)
+{
+	// Takes 1 argument, 1 optional
+	char* msg = (char*)lua_tostring(L, 1);		// The message
+	if(lua_gettop(L) == 2)
+	{
+		msgbox(msg, lua_tostring(L, 2));
+		lua_pop(L, 1);
+	}
+	else
+	{
+		msgbox(msg);
+	}
+	lua_pop(L, 1);
+	return 0;
+}
+
+int lua_toggle(lua_State* L)
+{
+	// Takes 2 arguments, 1 optional
+	if(lua_gettop(L) == 2)
+	{
+		// If there are only 2 arguments, just toggle
+		int x = (int)lua_tonumber(L, 1);
+		int y = (int)lua_tonumber(L, 2);
+		cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
+		cells[y*gw+x]->update_display();
+		lua_pop(L, 2);
+	}
+	else if(lua_gettop(L) == 3)
+	{
+		// If there is an extra argument (bool value), toggle that to bool value
+		int x = (int)lua_tonumber(L, 1);
+		int y = (int)lua_tonumber(L, 2);
+		bool s = lua_toboolean(L, 3);
+		cells[y*gw+x]->setState(s);
+		cells[y*gw+x]->update_display();
+		lua_pop(L, 3);
+	}
+	return 0;
 }
 
 void not_implemented(Fl_Widget* w, void* data)
@@ -1069,5 +1128,36 @@ void project_cb(Fl_Widget* w, void* data)
 	for(int i=0; i<cells.size(); i++)
 	{
 		cells[i]->update_display();
+	}
+}
+
+void toggle_console_cb(Fl_Widget* w, void* data)
+{
+	if(extendedmode)
+	{
+		// If the window is extended, put it back
+		window->size(window->w()-txteditw, window->h());
+		extendedmode = false;
+	}
+	else
+	{
+		// If the window is not extended, extend it
+		window->size(window->w()+txteditw, window->h());
+		extendedmode = true;
+	}
+}
+
+void run_lua_script_cb(Fl_Widget*, void*)
+{
+	// Get the buffer text
+	char* script = scriptbuf->text();
+
+	// Load into lua
+	int error = luaL_loadbuffer(lh, script, string(script).size(), "buffer") || lua_pcall(lh, 0, 0, 0);
+	if(error)
+	{
+		// Print any errors
+		msgbox(lua_tostring(lh, -1), "Lua Script");
+		lua_pop(lh, 1);
 	}
 }
