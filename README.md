@@ -4,7 +4,7 @@ Cellular_Automata
 Cellular_Automata is a program intended to experiment with different<br>
 types of cellular automata, such as Game of Life, Maze, HighLife, etc.
 
-Version:	v1.0.0
+Version:	v1.1.0
 
 Author:		Cheuk Yin Ng <cheukyin699@yahoo.com>
 

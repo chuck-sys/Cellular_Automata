@@ -29,7 +29,7 @@ using namespace std;
 
 // Default/Constant variables
 const char App_Title[] = "Cellular Automata";
-const char App_Version[] = "v1.0.0";
+const char App_Version[] = "v1.1.0";
 const char App_Info[] = "Cellular Automata is a program which lets you experiment with\n"
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
@@ -161,9 +161,11 @@ Fl_Menu_Item Menu_Items[] = {
 	{"&Advanced", 0, 0, 0, FL_SUBMENU},
 		{"Project...", 0, project_cb, 0, FL_MENU_DIVIDER},
 		{"Toggle Lua Console", 0, toggle_console_cb},
-		{"Open Script", 0, os_script_cb, 0},
-		{"Save Script", 0, os_script_cb, (void*)1},
-		{"Run Script", 0, run_lua_script_cb},
+		{"Script", 0, 0, 0, FL_SUBMENU},
+			{"Open Script", 0, os_script_cb, 0},
+			{"Save Script", 0, os_script_cb, (void*)1},
+			{"Run Script", 0, run_lua_script_cb},
+			{0},
 		{0},
 	{"&Help", 0, 0, 0, FL_SUBMENU},
 		{"About Program", 0, about_cb},
@@ -1223,4 +1225,8 @@ void os_script_cb(Fl_Widget* w, void* data)
 		// Load file
 		scriptbuf->loadfile(fn);
 	}
+
+	// Toggle extended mode if not toggled already
+	if(!extendedmode)
+		toggle_console_cb(w, data);
 }
