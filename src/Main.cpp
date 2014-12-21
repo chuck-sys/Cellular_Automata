@@ -34,7 +34,7 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
 		"different types of cellular automata, hence the name.\n"
 		"By playing around with this program, you get to find out more about\n"
 		"how a certain cellular automata works, or perhaps invent your own.";
-int txteditw = 300;		// Width of text editor
+int txteditw = 300;				// Width of text editor
 int gw = 50;					// Grid width
 int gh = 50;					// Grid height
 int cw = 10;					// Cell width (px)
