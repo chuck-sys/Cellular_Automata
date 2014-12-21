@@ -81,6 +81,9 @@ int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 Fl_Menu_Bar* menu;
 Fl_Text_Buffer* scriptbuf;
 Fl_Double_Window* window;
+Fl_Button* play_bt;
+Fl_Button* step_bt;
+Fl_Text_Editor* edit;
 
 // Function prototypes
 void msgbox(const char*, const char*);
@@ -206,11 +209,11 @@ int main(int argc, char* argv[])
 	menu = new Fl_Menu_Bar(0, 0, window->w()+1, menuh);
 
 	// The play button
-	Fl_Button* play_bt = new Fl_Button(0, ch*gh+menuh, window->w()/2, buttonh, "@>");
+	play_bt = new Fl_Button(0, ch*gh+menuh, window->w()/2, buttonh, "@>");
 	// The step button
-	Fl_Button* step_bt = new Fl_Button(window->w()/2, ch*gh+menuh, window->w()/2, buttonh, "@->|");
+	step_bt = new Fl_Button(window->w()/2, ch*gh+menuh, window->w()/2, buttonh, "@->|");
 	// The textbox
-	Fl_Text_Editor* edit = new Fl_Text_Editor(window->w(), 0, txteditw, window->h());
+	edit = new Fl_Text_Editor(window->w(), 0, txteditw, window->h());
 
 	window->end();
 
