@@ -51,7 +51,7 @@ int Lua_Helper::lua_get<int>()
 	if(lua_isnumber(this->state, -1))
 		return (int)lua_tonumber(this->state, -1);
 	else
-		return NULL;
+		return (int)NULL;
 }
 
 template<>
@@ -60,7 +60,7 @@ double Lua_Helper::lua_get<double>()
 	if(lua_isnumber(this->state, -1))
 		return (double)lua_tonumber(this->state, -1);
 	else
-		return NULL;
+		return (double)NULL;
 }
 
 template<>
