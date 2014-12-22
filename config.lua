@@ -19,7 +19,7 @@ menuh = 30
 buttonh = 50
 
 -- Text editor width
-txteditw = 300
+txteditw = 350
 
 -- Shade factor
 -- For shading out selected squares
