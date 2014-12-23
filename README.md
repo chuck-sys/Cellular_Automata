@@ -2,7 +2,7 @@ Cellular_Automata
 =================
 
 **Cellular_Automata** is a program intended to experiment with different<br>
-types of cellular automata, such as *Game of Life*, *Maze*, *HighLife*, etc.
+types of cellular automata, such as *Game of Life*, *Maze*, *HighLife*, etc.<br>
 It gives you the opportunity to program it to do what you want it to do, and<br>
 have more control over what you are doing.
 
