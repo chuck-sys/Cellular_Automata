@@ -26,3 +26,33 @@ Do:
 
 	make clean
 	make
+
+Features
+========
+
+Cellular Automata can:
+- Run a configuration of cells with custom rules
+- Create your own rules!
+- Step through a configuration of cells with rules
+- Project a configuration of cells for **n** number of generations passed
+- Rules included:
+	* Game of Life
+	* HighLife
+	* Maze
+	* Mazectric
+	* Replicator
+- Save/Load boards in plain text format
+- Save/Load stamps in plain text format
+- Stamps included: Block, Blinker, Glider
+- Select areas to apply:
+	* Inversion
+	* Random tiles
+	* Reset
+- Drag mode!
+- Lua configuration file
+- Lua autorun file
+- Embeded Lua runtime commands and support
+	* Edit Lua scripts
+	* Save Lua scripts
+	* Run Lua scripts
+
