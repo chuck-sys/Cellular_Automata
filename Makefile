@@ -1,5 +1,5 @@
 CPP := g++
-CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c -Ilua/include/ -Wall -Wextra -O2
+CPPFLAGS := `fltk-config --cxxflags` -std=c++11 -c -Ilua/include/ -O2
 LD := g++
 LDFLAGS := `fltk-config --ldflags` -Llua/lib -llua
 LDSTATIC := `fltk-config --ldstaticflags` -Llua/lib -llua
