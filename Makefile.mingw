@@ -1,0 +1,29 @@
+CPP := mingw32-g++
+CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c -I/c/MinGw/msys/1.0/local/include -Ilua/include
+LD := mingw32-g++
+LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib
+LDSTATIC := `fltk-config --ldstaticflags`
+
+SRC := src/Tile.cpp src/Main.cpp src/LuaHelper.cpp
+OBJ := obj/Tile.o obj/Main.o obj/LuaHelper.o
+EXE := Cellular_Automata
+
+.PHONY: all clean
+
+all: $(EXE)
+
+clean:
+	rm -rf $(EXE) $(OBJ)
+
+$(EXE): $(OBJ)
+	$(LD) $(OBJ) $(LDFLAGS) -o $@
+
+obj/Main.o: src/Main.cpp src/Rulestring.h
+obj/Tile.o: src/Tile.cpp src/Tile.h
+obj/LuaHelper.o: src/LuaHelper.cpp src/LuaHelper.h
+
+obj/%.o: src/%.cpp
+	$(CPP) $(CPPFLAGS) $< -o $@
+
+obj/%.o: src/%.cpp src/%.h
+	$(CPP) $(CPPFLAGS) $< -o $@
