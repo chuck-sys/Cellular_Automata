@@ -1,12 +1,12 @@
 CPP := mingw32-g++
 CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c -I/c/MinGw/msys/1.0/local/include -Ilua/include
 LD := mingw32-g++
-LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib
+LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib -llua52
 LDSTATIC := `fltk-config --ldstaticflags`
 
 SRC := src/Tile.cpp src/Main.cpp src/LuaHelper.cpp
 OBJ := obj/Tile.o obj/Main.o obj/LuaHelper.o
-EXE := Cellular_Automata
+EXE := Cellular_Automata.exe
 
 .PHONY: all clean
 

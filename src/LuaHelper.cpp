@@ -40,13 +40,13 @@ bool Lua_Helper::report_errors(int status)
 }
 
 template<>
-bool Lua_Helper::lua_get<bool>()
+inline bool Lua_Helper::lua_get<bool>()
 {
 	return (bool)lua_toboolean(this->state, -1);
 }
 
 template<>
-int Lua_Helper::lua_get<int>()
+inline int Lua_Helper::lua_get<int>()
 {
 	if(lua_isnumber(this->state, -1))
 		return (int)lua_tonumber(this->state, -1);
@@ -55,7 +55,7 @@ int Lua_Helper::lua_get<int>()
 }
 
 template<>
-double Lua_Helper::lua_get<double>()
+inline double Lua_Helper::lua_get<double>()
 {
 	if(lua_isnumber(this->state, -1))
 		return (double)lua_tonumber(this->state, -1);
@@ -64,7 +64,7 @@ double Lua_Helper::lua_get<double>()
 }
 
 template<>
-char* Lua_Helper::lua_get<char*>()
+inline char* Lua_Helper::lua_get<char*>()
 {
 	if(lua_isstring(this->state, -1))
 		return (char*)lua_tostring(this->state, -1);

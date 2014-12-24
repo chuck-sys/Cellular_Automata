@@ -29,7 +29,7 @@ public:
 	}
 	// Other implicit functions
 	template<typename T>
-	T lua_get() {return 0;}
+	inline T lua_get() {return 0;}
 
 	// Getters (for constant config values)
 	template<typename T>
