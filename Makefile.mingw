@@ -2,7 +2,8 @@ CPP := mingw32-g++
 CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c -I/c/MinGw/msys/1.0/local/include -Ilua/include
 LD := mingw32-g++
 LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib -llua52
-LDSTATIC := `fltk-config --ldstaticflags`
+LDSTATIC := `fltk-config --ldstaticflags` /c/MinGw/msys/1.0/local/lib/libfltk.a -Llua/lib -llua52
+
 
 SRC := src/Tile.cpp src/Main.cpp src/LuaHelper.cpp
 OBJ := obj/Tile.o obj/Main.o obj/LuaHelper.o
