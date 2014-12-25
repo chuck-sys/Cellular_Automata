@@ -1,7 +1,7 @@
 CPP := mingw32-g++
 CPPFLAGS := `fltk-config --cxxflags` -std=c++0x -c -I/c/MinGw/msys/1.0/local/include -Ilua/include -static-libgcc -static-libstdc++
 LD := mingw32-g++
-LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib -llua52
+LDFLAGS := `fltk-config --ldflags` -L/c/MinGw/msys/1.0/local/lib -Llua/lib -llua52 -static-libgcc -static-libstdc++
 LDSTATIC := `fltk-config --ldstaticflags` /c/MinGw/msys/1.0/local/lib/libfltk.a -Llua/lib -llua52
 
 
