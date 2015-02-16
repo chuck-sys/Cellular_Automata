@@ -18,9 +18,16 @@ menuh = 30
 -- Button height
 buttonh = 50
 
+-- Text editor width
+txteditw = 350
+
 -- Shade factor
 -- For shading out selected squares
 shadefactor = 10
+
+-- Background/Foreground color
+backcol = rgb_col(0,0,1)
+forecol = rgb_col(200,0,0)
 
 -- The timeout between each tick (s)
 timeout = 0.1
