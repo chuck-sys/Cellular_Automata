@@ -10,48 +10,48 @@
 
 extern "C"
 {
-	#include <lua.h>
-	#include <lualib.h>
-	#include <lauxlib.h>
+    #include <lua.h>
+    #include <lualib.h>
+    #include <lauxlib.h>
 }
 
 class Lua_Helper
 {
 private:
-	lua_State* state;
+    lua_State* state;
 public:
-	Lua_Helper();
-	~Lua_Helper();
+    Lua_Helper();
+    ~Lua_Helper();
 
-	// Implicitly act as lua_State pointer
-	inline operator lua_State*() {
-		return state;
-	}
-	// Other implicit functions
-	template<typename T>
-	T lua_get() {return 0;}
+    // Implicitly act as lua_State pointer
+    inline operator lua_State*() {
+        return state;
+    }
+    // Other implicit functions
+    template<typename T>
+    T lua_get() {return 0;}
 
-	// Getters (for constant config values)
-	template<typename T>
-	T get(char const* varname)
-	{
-		// The result
-		T result;
-		// Put variable on stack
-		lua_getglobal(this->state, varname);
-		// Get variable from stack
-		result = this->lua_get<T>();
-		// Pop from stack
-		lua_pop(this->state, 1);
+    // Getters (for constant config values)
+    template<typename T>
+    T get(char const* varname)
+    {
+        // The result
+        T result;
+        // Put variable on stack
+        lua_getglobal(this->state, varname);
+        // Get variable from stack
+        result = this->lua_get<T>();
+        // Pop from stack
+        lua_pop(this->state, 1);
 
-		return result;
-	}
+        return result;
+    }
 
-	// Report errors
-	bool report_errors(int);
+    // Report errors
+    bool report_errors(int);
 
-	// Close it
-	void close();
+    // Close it
+    void close();
 };
 
 

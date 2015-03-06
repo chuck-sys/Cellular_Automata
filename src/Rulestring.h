@@ -4,9 +4,9 @@
  * Contains all the rules for the cellular automata
  *
  * Format:
- * 		S/B
- * 		S = Survive
- * 		B = Birth
+ *         S/B
+ *         S = Survive
+ *         B = Birth
  * If there are S amount of cells as a it's neighbour, then survival occurs
  * If there are B amount of cells as a it's neighbour, then birth occurs
  *
