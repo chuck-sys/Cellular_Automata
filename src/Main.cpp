@@ -34,16 +34,16 @@ const char App_Info[] = "Cellular Automata is a program which lets you experimen
         "different types of cellular automata, hence the name.\n"
         "By playing around with this program, you get to find out more about\n"
         "how a certain cellular automata works, or perhaps invent your own.";
-int txteditw = 300;                // Width of text editor
+int txteditw = 300;             // Width of text editor
 int gw = 50;                    // Grid width
 int gh = 50;                    // Grid height
 int cw = 10;                    // Cell width (px)
 int ch = 10;                    // Cell height (px)
-int menuh = 30;                    // Menubar height (px)
-int buttonh = 50;                // Button height (px)
-int shadefactor = 10;            // The Shade factor (for shading out selected squares
-double timeout = 0.1;            // The timeout between each tick (s)
-bool tutmode = false;            // Whether we are in tutorial mode or not
+int menuh = 30;                 // Menubar height (px)
+int buttonh = 50;               // Button height (px)
+int shadefactor = 10;           // The Shade factor (for shading out selected squares
+double timeout = 0.1;           // The timeout between each tick (s)
+bool tutmode = false;           // Whether we are in tutorial mode or not
 
 // Global variables
 Lua_Helper lh;
@@ -73,8 +73,8 @@ const int TD_SY = 3;    // Tempdata second y
 const int TD_CI = 4;    // Tempdata corner index
 const int TD_SW = 5;    // Tempdata stamp width
 const int TD_SH = 6;    // Tempdata stamp height
-const int TD_STX = 7;    // Tempdata stamp x
-const int TD_STY = 8;    // Tempdata stamp y
+const int TD_STX = 7;   // Tempdata stamp x
+const int TD_STY = 8;   // Tempdata stamp y
 int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
 // Global FL variables
@@ -237,8 +237,8 @@ int main(int argc, char* argv[])
 
     // Now load the autorun/functions file
     errs = luaL_loadfile(lh, "autorun.lua");    // Load file
-    lh.report_errors(errs);                            // Report any errors in file
-    errs = lua_pcall(lh, 0, LUA_MULTRET, 0);        // Run file
+    lh.report_errors(errs);                     // Report any errors in file
+    errs = lua_pcall(lh, 0, LUA_MULTRET, 0);    // Run file
     lh.report_errors(errs);
 
     window->show(argc, argv);
@@ -256,7 +256,7 @@ void tick(void* step)
 {
     int tempfx, tempfy, tempsx, tempsy;
     tempfx = 0; tempfy = 0; tempsx = gw-1; tempsy = gh-1;
-    bool tempcells[gw*gh];                // Temporary array
+    bool tempcells[gw*gh];                          // Temporary array
     if(selectmode && tempdata[TD_CI] == -1)
     {
         tempfx = tempdata[TD_FX];
