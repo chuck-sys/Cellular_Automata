@@ -1,7 +1,6 @@
 Cellular_Automata
 =================
 
-[![Build Status](https://travis-ci.org/cheukyin699/Cellular_Automata.svg?branch=master)](https://travis-ci.org/cheukyin699/Cellular_Automata)
 
 **Cellular_Automata** is a program intended to experiment with different<br>
 types of cellular automata, such as *Game of Life*, *Maze*, *HighLife*, etc.<br>
