@@ -928,7 +928,7 @@ void save_stamp_cb(Fl_Widget* w, void* data)
         int sw = tempdata[TD_SX]-tempdata[TD_FX];
         int sh = tempdata[TD_SY]-tempdata[TD_FY];
         int i=0;
-        char* stamp = new char[(sw+2)*(sh+1)];
+        char* stamp = new char[(sw+2)*(sh)];
         // Create the stamp to write to file
         for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
         {
@@ -1030,8 +1030,9 @@ void load_stamp_cb(Fl_Widget* w, void* data)
                 cells[y*gw+x]->setState((filestring[i++] == 'X'? true:false));
                 cells[y*gw+x]->update_display();
 
-                if(filestring[i] == '\n')
+                if(filestring[i] == '\n') {
                     i++;
+                }
             }
         }
 
