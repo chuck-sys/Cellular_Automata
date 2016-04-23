@@ -142,12 +142,19 @@ Fl_Menu_Item Menu_Items[] = {
     {"Stamps", 0, 0, 0, FL_SUBMENU},
         {"Still Life", 0, 0, 0, FL_SUBMENU},
             {"Block", 0, load_stamp_cb, (void*)"stamps/block.ca"},
+            {"Boat", 0, load_stamp_cb, (void*)"stamps/boat.ca"},
+            {"Tub", 0, load_stamp_cb, (void*)"stamps/tub.ca"},
             {0},
         {"Oscillators", 0, 0, 0, FL_SUBMENU},
+            {"Beacon", 0, load_stamp_cb, (void*)"stamps/beacon.ca"},
             {"Blinker", 0, load_stamp_cb, (void*)"stamps/blinker.ca"},
+            {"Blinker2", 0, load_stamp_cb, (void*)"stamps/blinker2.ca"},
+            {"Pulsar", 0, load_stamp_cb, (void*)"stamps/pulsar.ca"},
+            {"Toad", 0, load_stamp_cb, (void*)"stamps/toad.ca"},
             {0},
         {"Spaceships", 0, 0, 0, FL_SUBMENU},
             {"Glider", 0, load_stamp_cb, (void*)"stamps/glider.ca"},
+            {"LWSS", 0, load_stamp_cb, (void*)"stamps/lwss.ca"},
             {0},
         {0},
     {"&Rules", 0, 0, 0, FL_SUBMENU},
@@ -928,7 +935,7 @@ void save_stamp_cb(Fl_Widget* w, void* data)
         int sw = tempdata[TD_SX]-tempdata[TD_FX];
         int sh = tempdata[TD_SY]-tempdata[TD_FY];
         int i=0;
-        char* stamp = new char[(sw+2)*(sh)];
+        char* stamp = new char[(sw+2)*(sh+1)];
         // Create the stamp to write to file
         for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
         {
