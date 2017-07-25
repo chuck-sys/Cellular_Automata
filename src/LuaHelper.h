@@ -8,20 +8,17 @@
 #ifndef LUAHELPER_H_
 #define LUAHELPER_H_
 
-extern "C"
-{
+extern "C" {
     #include <lua.h>
     #include <lualib.h>
     #include <lauxlib.h>
 }
 
-class Lua_Helper
-{
+class Lua_Helper {
 private:
     lua_State* state;
 public:
     Lua_Helper();
-    ~Lua_Helper();
 
     // Implicitly act as lua_State pointer
     inline operator lua_State*() {
@@ -33,8 +30,7 @@ public:
 
     // Getters (for constant config values)
     template<typename T>
-    T get(char const* varname)
-    {
+    T get(char const* varname) {
         // The result
         T result;
         // Put variable on stack
@@ -53,6 +49,5 @@ public:
     // Close it
     void close();
 };
-
 
 #endif /* LUAHELPER_H_ */

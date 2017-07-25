@@ -30,10 +30,11 @@ using namespace std;
 // Default/Constant variables
 const char App_Title[] = "Cellular Automata";
 const char App_Version[] = "v1.1.0";
-const char App_Info[] = "Cellular Automata is a program which lets you experiment with\n"
-        "different types of cellular automata, hence the name.\n"
-        "By playing around with this program, you get to find out more about\n"
-        "how a certain cellular automata works, or perhaps invent your own.";
+const char App_Info[] =
+"Cellular Automata is a program which lets you experiment with\n"
+"different types of cellular automata, hence the name.\n"
+"By playing around with this program, you get to find out more about\n"
+"how a certain cellular automata works, or perhaps invent your own.";
 int txteditw = 300;             // Width of text editor
 int gw = 50;                    // Grid width
 int gh = 50;                    // Grid height
@@ -184,8 +185,7 @@ Fl_Menu_Item Menu_Items[] = {
     {0}
 };
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     // Initialize rulestrings
     rs_init();
 
@@ -207,10 +207,8 @@ int main(int argc, char* argv[])
     window->begin();
 
     // Add all the cells in
-    for(int y=0; y<gh; y++)
-    {
-        for(int x=0; x<gw; x++)
-        {
+    for(int y=0; y<gh; y++) {
+        for(int x=0; x<gw; x++) {
             Tile* t = new Tile(x*cw, y*ch+menuh, cw, ch);
             t->setCoords(x, y);
             t->callback(tile_cb);
@@ -257,19 +255,16 @@ int main(int argc, char* argv[])
     return Fl::run();
 }
 
-void msgbox(const char* msg, const char* title=App_Title)
-{
+void msgbox(const char* msg, const char* title=App_Title) {
     fl_message_title(title);
     fl_message(msg);
 }
 
-void tick(void* step)
-{
+void tick(void* step) {
     int tempfx, tempfy, tempsx, tempsy;
     tempfx = 0; tempfy = 0; tempsx = gw-1; tempsy = gh-1;
     bool tempcells[gw*gh];                          // Temporary array
-    if(selectmode && tempdata[TD_CI] == -1)
-    {
+    if(selectmode && tempdata[TD_CI] == -1) {
         tempfx = tempdata[TD_FX];
         tempfy = tempdata[TD_FY];
         tempsx = tempdata[TD_SX];
@@ -277,18 +272,14 @@ void tick(void* step)
         for(int i=0; i<gw*gh; i++)
             tempcells[i] = cells[i]->getState();    // Initialize temperary array
     }
-    for(int y=tempfy; y<=tempsy; y++)
-    {
-        for(int x=tempfx; x<=tempsx; x++)
-        {
+    for(int y=tempfy; y<=tempsy; y++) {
+        for(int x=tempfx; x<=tempsx; x++) {
             int aroundtiles = 0;
             // The offsets
-            for(short ofy=-1; ofy<2; ofy++)
-            {
-                for(short ofx=-1; ofx<2; ofx++)
-                {
-                    if(((x+ofx>=0) && (y+ofy>=0) && (x+ofx <= tempsx) && (y+ofy <= tempsy) && !((ofx == 0) && (ofy == 0))))
-                    {
+            for(short ofy=-1; ofy<2; ofy++) {
+                for(short ofx=-1; ofx<2; ofx++) {
+                    if(((x+ofx>=0) && (y+ofy>=0) && (x+ofx <= tempsx) &&
+                                (y+ofy <= tempsy) && !((ofx == 0) && (ofy == 0)))) {
                         aroundtiles += int(cells[(y+ofy)*gw+x+ofx]->getState());
                     }
                 }
@@ -298,21 +289,15 @@ void tick(void* step)
             // Now comes the tricky bit: Looping over the rules
             bool negone = false;
             int count = 0;
-            for(int i=0; i<currentRS.size(); i++)
-            {
-                if(currentRS[i] == -1)
-                {
+            for(int i=0; i<currentRS.size(); i++) {
+                if(currentRS[i] == -1) {
                     negone = true;
-                }
-                else if(!negone)
-                {
+                } else if(!negone) {
                     // When it hasn't looped through middle separator yet
                     // Do the rules for survival
                     if(aroundtiles == currentRS[i] && cells[y*gw+x]->getState())
                         tempbool = true;
-                }
-                else if(negone)
-                {
+                } else if(negone) {
                     // When it has looped through the middle separator
                     // Do the rules for birth
                     if(aroundtiles == currentRS[i] && !cells[y*gw+x]->getState())
@@ -325,10 +310,8 @@ void tick(void* step)
     }
 
     // Put tempcells into cells
-    for(int i=0; i<sizeof(tempcells)/sizeof(bool); i++)
-    {
-        if(cells[i]->getState() != tempcells[i])
-        {
+    for(int i=0; i<sizeof(tempcells)/sizeof(bool); i++) {
+        if(cells[i]->getState() != tempcells[i]) {
             // Update only if necessary
             cells[i]->setState(tempcells[i]);
             if(!projectmode)
@@ -340,84 +323,71 @@ void tick(void* step)
         Fl::repeat_timeout(timeout, tick);
 }
 
-void get_config(Lua_Helper L)
-{
+void get_config(Lua_Helper L) {
     // Check to see if the sizes are > 0
     // Only occurs if someone were to spoof
     // or if someone deleted a variable
     // If any of that happens, just use the default
     int temp = 0;
     temp = L.get<int>("txteditw");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         txteditw = temp;
     }
 
     temp = L.get<int>("gw");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         gw = temp;
     }
 
     temp = L.get<int>("gh");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         gh = temp;
     }
 
     temp = L.get<int>("cw");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         cw = temp;
     }
 
     temp = L.get<int>("ch");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         ch = temp;
     }
 
     temp = L.get<int>("menuh");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         menuh = temp;
     }
 
     temp = L.get<int>("buttonh");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         buttonh = temp;
     }
 
     temp = L.get<int>("shadefactor");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         shadefactor = temp;
     }
 
     temp = L.get<int>("backcol");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         Tile::DeadCol = temp;
     }
 
     temp = L.get<int>("forecol");
-    if(temp > 0 && temp)
-    {
+    if(temp > 0 && temp) {
         Tile::AliveCol = temp;
     }
 
     double dtemp = L.get<double>("timeout");
-    if(dtemp > 0 && dtemp)
-    {
+    if(dtemp > 0 && dtemp) {
         timeout = dtemp;
     }
     // Successful no matter what because boolean value
     tutmode = L.get<bool>("tutmode");
 }
 
-inline int abs(int num)
-{
+inline int abs(int num) {
     // The absolute value function
     // Returns negated number if smaller than zero
     if(num < 0)
@@ -426,8 +396,7 @@ inline int abs(int num)
         return num;
 }
 
-void rs_init()
-{
+void rs_init() {
     // Puts all the rulestrings into a vector of vectors
     All_RS.push_back(GameofLife_RS);
     All_RS.push_back(HighLife_RS);
@@ -436,8 +405,7 @@ void rs_init()
     All_RS.push_back(Replicator_RS);
 }
 
-void lua_funcinit()
-{
+void lua_funcinit() {
     // Put functions into lua
     lua_pushcfunction(lh, lua_createrule);
     lua_setglobal(lh, "createrule");
@@ -449,16 +417,14 @@ void lua_funcinit()
     lua_setglobal(lh, "toggle");
 }
 
-int lua_createrule(lua_State* L)
-{
+int lua_createrule(lua_State* L) {
     // (Hopefully) called by lua
     char* name = (char*)lua_tostring(L, 1);            // The name of rulestring (first argument)
     char* rs = (char*)lua_tostring(L, 2);            // The rulestring (second argument)
     lua_pop(L, 2);
 
     vector<int> My_RS;
-    for(int i=0; rs[i] != '\0'; i++)
-    {
+    for(int i=0; rs[i] != '\0'; i++) {
         if(rs[i] == '/')
             My_RS.push_back(-1);
         else if(rs[i] >= '0' && rs[i] <= '8')
@@ -474,8 +440,7 @@ int lua_createrule(lua_State* L)
     return 0;
 }
 
-int lua_rgb_col(lua_State* L)
-{
+int lua_rgb_col(lua_State* L) {
     // Takes 3 arguments: r=[0,255], g=[0,255], b=[0,255]
     int r = (int)lua_tonumber(L, 1);
     int g = (int)lua_tonumber(L, 2);
@@ -488,37 +453,29 @@ int lua_rgb_col(lua_State* L)
     return 1;
 }
 
-int lua_msgbox(lua_State* L)
-{
+int lua_msgbox(lua_State* L) {
     // Takes 1 argument, 1 optional
     char* msg = (char*)lua_tostring(L, 1);        // The message
-    if(lua_gettop(L) == 2)
-    {
+    if(lua_gettop(L) == 2) {
         msgbox(msg, lua_tostring(L, 2));
         lua_pop(L, 1);
-    }
-    else
-    {
+    } else {
         msgbox(msg);
     }
     lua_pop(L, 1);
     return 0;
 }
 
-int lua_toggle(lua_State* L)
-{
+int lua_toggle(lua_State* L) {
     // Takes 2 arguments, 1 optional
-    if(lua_gettop(L) == 2)
-    {
+    if(lua_gettop(L) == 2) {
         // If there are only 2 arguments, just toggle
         int x = (int)lua_tonumber(L, 1);
         int y = (int)lua_tonumber(L, 2);
         cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
         cells[y*gw+x]->update_display();
         lua_pop(L, 2);
-    }
-    else if(lua_gettop(L) == 3)
-    {
+    } else if(lua_gettop(L) == 3) {
         // If there is an extra argument (bool value), toggle that to bool value
         int x = (int)lua_tonumber(L, 1);
         int y = (int)lua_tonumber(L, 2);
@@ -530,25 +487,21 @@ int lua_toggle(lua_State* L)
     return 0;
 }
 
-void not_implemented(Fl_Widget* w, void* data)
-{
+void not_implemented(Fl_Widget* w, void* data) {
     msgbox("This feature has not beeen implemented yet.", "Sorry :-(");
 }
 
-void tile_cb(Fl_Widget* w, void* data)
-{
+void tile_cb(Fl_Widget* w, void* data) {
     Tile* tw = (Tile*)w;
     tw->toggle();
     tw->update_display();
 }
 
-void save_board_cb(Fl_Widget* w, void* data)
-{
+void save_board_cb(Fl_Widget* w, void* data) {
     // Uses ASCII art to save
     // Asks user for filename
     char* fn = fl_file_chooser("Save Board", "Cellular Automata (*.ca)| All Files (*.*)", ".");
-    if(fn == NULL)
-    {
+    if(fn == NULL) {
         // If user cancelled
         // return
         return;
@@ -556,42 +509,33 @@ void save_board_cb(Fl_Widget* w, void* data)
 
     // Turns the whole board into a string
     char wholeboard[gh*(gw+1)];
-    for(int y=0; y<gh; y++)
-    {
-        for(int x=0; x<gw; x++)
-        {
-            if(cells[y*gw+x]->getState())
-            {
+    for(int y=0; y<gh; y++) {
+        for(int x=0; x<gw; x++) {
+            if(cells[y*gw+x]->getState()) {
                 wholeboard[y*(gw+1)+x] = 'X';
-            }
-            else
+            } else {
                 wholeboard[y*(gw+1)+x] = 'O';
+            }
         }
         wholeboard[y*(gw+1)+gw] = '\n';
     }
 
     // Write the whole thing to file
-    try
-    {
+    try {
         ofstream file(fn);
         file << wholeboard;
         file.close();
-    }
-    catch(exception& ex)
-    {
+    } catch(exception& ex) {
         msgbox(ex.what());
         return;
     }
 }
 
-void open_board_cb(Fl_Widget* w, void* data)
-{
+void open_board_cb(Fl_Widget* w, void* data) {
     // Asks user for filename
     char* fn = fl_file_chooser("Open Board", "Cellular Automata (*.ca)| All Files (*.*)", ".");
-    if(fn == NULL)
-    {
+    if(fn == NULL) {
         // If user cancelled
-        // return
         return;
     }
 
@@ -600,15 +544,12 @@ void open_board_cb(Fl_Widget* w, void* data)
     int y=0;
     bool err=false;
     bool skip=false;
-    try
-    {
+    try {
         ifstream file(fn);
         char tmp;
-        while(file.get(tmp))
-        {
+        while(file.get(tmp)) {
             // Out of range errors
-            if(x >= gw)
-            {
+            if(x >= gw) {
                 err = true;
                 skip = true;
                 x=0;
@@ -619,8 +560,7 @@ void open_board_cb(Fl_Widget* w, void* data)
                 break;
             }
 
-            if(tmp == '\n')
-            {
+            if(tmp == '\n') {
                 x=0;
                 y++;
                 skip = false;
@@ -628,40 +568,33 @@ void open_board_cb(Fl_Widget* w, void* data)
             }
             if(skip)
                 continue;
-            bool state = (tmp=='X'? true:false);
-            if(cells[y*gw+x]->getState() != state)
-            {
+            bool state = tmp == 'X';
+            if(cells[y*gw+x]->getState() != state) {
                 cells[y*gw+x]->setState(state);
                 cells[y*gw+x]->update_display();
             }
             x++;
         }
         file.close();
-    }
-    catch(exception& ex)
-    {
+    } catch(exception& ex) {
         msgbox(ex.what());
         return;
     }
 
     // Error handling
-    if(err)
-    {
+    if(err) {
         // Gives out a warning
         msgbox("Warning: The file was probably not meant for a board of this size.");
     }
 }
 
-void quit_cb(Fl_Widget* w, void* data)
-{
+void quit_cb(Fl_Widget* w, void* data) {
     lh.close();
     exit(0);
 }
 
-void play_cb(Fl_Widget* w, void* data)
-{
-    if(!Fl::has_timeout(tick))
-    {
+void play_cb(Fl_Widget* w, void* data) {
+    if(!Fl::has_timeout(tick)) {
         w->label("@square");
         w->tooltip("Stop the simulation");
         w->callback(stop_cb);
@@ -669,10 +602,8 @@ void play_cb(Fl_Widget* w, void* data)
     }
 }
 
-void stop_cb(Fl_Widget* w, void* data)
-{
-    if(Fl::has_timeout(tick))
-    {
+void stop_cb(Fl_Widget* w, void* data) {
+    if(Fl::has_timeout(tick)) {
         w->label("@>");
         w->tooltip("Play/Start the simulation");
         w->callback(play_cb);
@@ -680,28 +611,21 @@ void stop_cb(Fl_Widget* w, void* data)
     }
 }
 
-void step_cb(Fl_Widget* w, void* data)
-{
+void step_cb(Fl_Widget* w, void* data) {
     tick((void*)true);
 }
 
-void drag_cb(Fl_Widget* w, void* data)
-{
+void drag_cb(Fl_Widget* w, void* data) {
     Tile::DragMode = !Tile::DragMode;
 }
 
-void change_rule_cb(Fl_Widget* w, void* data)
-{
-    if((long)data == 0)
-    {
-        if(All_RS[0].size() == 0)
-        {
+void change_rule_cb(Fl_Widget* w, void* data) {
+    if((long)data == 0) {
+        if(All_RS[0].size() == 0) {
             // If you haven't established your own ruleset, just ask
             createrule_cb(w, data);
         }
-    }
-    else
-    {
+    } else {
         // If ruleset exists, do it
         // If it doesn't exist, do Game of Life (1)
         int rsnum = abs((long)data);
@@ -712,18 +636,13 @@ void change_rule_cb(Fl_Widget* w, void* data)
     }
 }
 
-void reset_cb(Fl_Widget* w, void* data)
-{
+void reset_cb(Fl_Widget* w, void* data) {
     // Resets the tiles
     // If you are in select mode, only resets those that are selected
-    if(selectmode && tempdata[TD_CI] == -1)
-    {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
-        {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
-            {
-                if(cells[y*gw+x]->getState())
-                {
+    if(selectmode && tempdata[TD_CI] == -1) {
+        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
+            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
+                if(cells[y*gw+x]->getState()) {
                     cells[y*gw+x]->setState(false);
                     cells[y*gw+x]->update_color();
                     cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
@@ -731,13 +650,9 @@ void reset_cb(Fl_Widget* w, void* data)
                 }
             }
         }
-    }
-    else
-    {
-        for(int i=0; i<cells.size(); i++)
-        {
-            if(cells[i]->getState())
-            {
+    } else {
+        for(int i=0; i<cells.size(); i++) {
+            if(cells[i]->getState()) {
                 // Update only if state = true
                 cells[i]->setState(false);
                 cells[i]->update_display();
@@ -746,19 +661,14 @@ void reset_cb(Fl_Widget* w, void* data)
     }
 }
 
-void randtiles_cb(Fl_Widget* w, void* data)
-{
+void randtiles_cb(Fl_Widget* w, void* data) {
     // Generate a random grid of tiles
     // in selected area or whole board
-    if(selectmode && tempdata[TD_CI] == -1)
-    {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
-        {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
-            {
+    if(selectmode && tempdata[TD_CI] == -1) {
+        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
+            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
                 bool state = (bool)(rand() % 2);
-                if(cells[y*gw+x]->getState() != state)
-                {
+                if(cells[y*gw+x]->getState() != state) {
                     cells[y*gw+x]->setState(state);
                     cells[y*gw+x]->update_color();
                     cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
@@ -766,14 +676,10 @@ void randtiles_cb(Fl_Widget* w, void* data)
                 }
             }
         }
-    }
-    else
-    {
-        for(int i=0; i<cells.size(); i++)
-        {
+    } else {
+        for(int i=0; i<cells.size(); i++) {
             bool state = (bool)(rand() % 2);
-            if(cells[i]->getState() != state)
-            {
+            if(cells[i]->getState() != state) {
                 // Update when necessary
                 cells[i]->setState(state);
                 cells[i]->update_display();
@@ -782,22 +688,18 @@ void randtiles_cb(Fl_Widget* w, void* data)
     }
 }
 
-void select_square_cb(Fl_Widget* w, void* data)
-{
-    if(loadstampmode)
-    {
+void select_square_cb(Fl_Widget* w, void* data) {
+    if(loadstampmode) {
         if(tutmode)
             msgbox("You are in load stamp mode. Cannot select.");
         return;
     }
     // Puts program into square select mode
-    if(!selectmode)
-    {
+    if(!selectmode) {
         // If program is not in select mode
         // Set up for select first corner
         // (Set the callbacks)
-        for(int i=0; i<cells.size(); i++)
-        {
+        for(int i=0; i<cells.size(); i++) {
             cells[i]->callback(corner_cb);
         }
         // Set selectmode
@@ -807,14 +709,11 @@ void select_square_cb(Fl_Widget* w, void* data)
         // For tutorial mode
         if(tutmode)
             msgbox("Please select a corner.\nRight-click to cancel.");
-    }
-    else if(tempdata[TD_FX] != -1 && tempdata[TD_FY] != -1 && tempdata[TD_SX] != -1 &&
-            tempdata[TD_SY] != -1 && tempdata[TD_CI] != -1 && selectmode)
-    {
+    } else if(tempdata[TD_FX] != -1 && tempdata[TD_FY] != -1 && tempdata[TD_SX] != -1 &&
+              tempdata[TD_SY] != -1 && tempdata[TD_CI] != -1 && selectmode) {
         // Test all the points first
         // Rearrange if neccessary
-        if(tempdata[TD_FX] > tempdata[TD_SX])
-        {
+        if(tempdata[TD_FX] > tempdata[TD_SX]) {
             int temp = tempdata[TD_FX];
             tempdata[TD_FX] = tempdata[TD_SX];
             tempdata[TD_SX] = temp;
@@ -828,14 +727,11 @@ void select_square_cb(Fl_Widget* w, void* data)
         // If you are done inputting the 2 corners,
         // put the stuff back
         // Reset all displays first
-        for(int i=0; i<cells.size(); i++)
-        {
+        for(int i=0; i<cells.size(); i++) {
             cells[i]->update_display();
         }
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
-        {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
-            {
+        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
+            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
                 // Alternate coloring for the area
                 cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
                 cells[y*gw+x]->redraw();
@@ -843,13 +739,10 @@ void select_square_cb(Fl_Widget* w, void* data)
         }
         // Reset the index
         tempdata[TD_CI] = -1;
-    }
-    else if(tempdata[TD_FX] == -2)
-    {
+    } else if(tempdata[TD_FX] == -2) {
         // If you right-click (cancel operation)
         // reset buttons
-        for(int i=0; i<cells.size(); i++)
-        {
+        for(int i=0; i<cells.size(); i++) {
             cells[i]->callback(tile_cb);
             cells[i]->update_display();
         }
@@ -864,20 +757,15 @@ void select_square_cb(Fl_Widget* w, void* data)
     }
 }
 
-void corner_cb(Fl_Widget* w, void* data)
-{
+void corner_cb(Fl_Widget* w, void* data) {
     // Check for right-click. If there is right-click, cancel select.
-    if(Fl::event_button() == FL_RIGHT_MOUSE)
-    {
+    if(Fl::event_button() == FL_RIGHT_MOUSE) {
         // Set to cancel
         tempdata[TD_FX] = -2;
-    }
-    else
-    {
+    } else {
         Tile* t = (Tile*)w;
         // Set the index
-        if(tempdata[TD_CI] == -1)
-        {
+        if(tempdata[TD_CI] == -1) {
             tempdata[TD_CI] = 0;
             // To allow selecting and selecting again
             tempdata[TD_SY] = -1;
@@ -896,27 +784,20 @@ void corner_cb(Fl_Widget* w, void* data)
     select_square_cb(w, data);
 }
 
-void inverttiles_cb(Fl_Widget* w, void* data)
-{
+void inverttiles_cb(Fl_Widget* w, void* data) {
     // Inverts all the tiles, if none are selected
     // You have to be in select mode. (Obviously)
-    if(selectmode && tempdata[TD_CI] == -1)
-    {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
-        {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++)
-            {
+    if(selectmode && tempdata[TD_CI] == -1) {
+        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
+            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
                 cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
                 cells[y*gw+x]->update_color();
                 cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
                 cells[y*gw+x]->redraw();
             }
         }
-    }
-    else
-    {
-        for(int i=0; i<cells.size(); i++)
-        {
+    } else {
+        for(int i=0; i<cells.size(); i++) {
             // Unfortunately, this has you updating
             // all the tiles, so I can't see any
             // optimizations to implement.
@@ -926,11 +807,9 @@ void inverttiles_cb(Fl_Widget* w, void* data)
     }
 }
 
-void save_stamp_cb(Fl_Widget* w, void* data)
-{
+void save_stamp_cb(Fl_Widget* w, void* data) {
     // Make sure that you have selected an area
-    if(selectmode && tempdata[TD_CI] == -1)
-    {
+    if(selectmode && tempdata[TD_CI] == -1) {
         // Ask for filename
         char* fn = fl_file_chooser("Save Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
         if(fn == NULL)
@@ -941,50 +820,37 @@ void save_stamp_cb(Fl_Widget* w, void* data)
         int i=0;
         char* stamp = new char[(sw+2)*(sh+1)];
         // Create the stamp to write to file
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++)
-        {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]+1; x++)
-            {
+        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
+            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]+1; x++) {
                 char pc = 'O';
-                if(x-tempdata[TD_FX] == sw+1)
-                {
+                if(x-tempdata[TD_FX] == sw+1) {
                     pc = '\n';
-                }
-                else if(cells[y*gw+x]->getState())
-                {
+                } else if(cells[y*gw+x]->getState()) {
                     pc = 'X';
                 }
                 stamp[i++] = pc;
             }
         }
-        try
-        {
+        try {
             ofstream f(fn);
             f << stamp;
             f.close();
-        }
-        catch(exception& ex)
-        {
+        } catch(exception& ex) {
             msgbox(ex.what());
         }
-    }
-    else
-    {
+    } else {
         if(tutmode)
             msgbox("Please select the area first.");
     }
 }
 
-void load_stamp_cb(Fl_Widget* w, void* data)
-{
-    if(selectmode)
-    {
+void load_stamp_cb(Fl_Widget* w, void* data) {
+    if(selectmode) {
         if(tutmode)
             msgbox("You are in select mode. Cannot load stamp.");
         return;
     }
-    if(tempdata[TD_FX] == -2)
-    {
+    if(tempdata[TD_FX] == -2) {
         if(tutmode)
             msgbox("Cancelled");
         // Cancel
@@ -996,8 +862,7 @@ void load_stamp_cb(Fl_Widget* w, void* data)
         return;
     }
     char* loadfn = (char*)data;
-    if(loadfn == 0)
-    {
+    if(loadfn == 0) {
         // Get the file
         loadfn = fl_file_chooser("Load Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
         if(loadfn == NULL)
@@ -1008,12 +873,10 @@ void load_stamp_cb(Fl_Widget* w, void* data)
     vector<char> filestring;
     int sw = 0;
     int sh = 0;
-    try
-    {
+    try {
         ifstream f(loadfn);
         char c;
-        while(f.get(c))
-        {
+        while(f.get(c)) {
             filestring.push_back(c);
             if(c == '\n')
                 sh++;
@@ -1023,21 +886,16 @@ void load_stamp_cb(Fl_Widget* w, void* data)
         tempdata[TD_SW] = sw/sh;
         tempdata[TD_SH] = sh;
         f.close();
-    }
-    catch(exception& ex)
-    {
+    } catch(exception& ex) {
         msgbox(ex.what());
     }
 
     // Check for load stamp mode
-    if(loadstampmode)
-    {
+    if(loadstampmode) {
         // If it is directed here from a button
         int i=0;
-        for(int y=tempdata[TD_STY]; y<tempdata[TD_STY]+tempdata[TD_SH]; y++)
-        {
-            for(int x=tempdata[TD_STX]; x<tempdata[TD_STX]+tempdata[TD_SW]; x++)
-            {
+        for(int y=tempdata[TD_STY]; y<tempdata[TD_STY]+tempdata[TD_SH]; y++) {
+            for(int x=tempdata[TD_STX]; x<tempdata[TD_STX]+tempdata[TD_SW]; x++) {
                 cells[y*gw+x]->setState((filestring[i++] == 'X'? true:false));
                 cells[y*gw+x]->update_display();
 
@@ -1054,28 +912,21 @@ void load_stamp_cb(Fl_Widget* w, void* data)
         for(int i=0; i<cells.size(); i++)
             cells[i]->callback(tile_cb);
         loadstampmode = false;
-    }
-    else
-    {
+    } else {
         // Change all button callbacks
-        for(int i=0; i<cells.size(); i++)
-        {
+        for(int i=0; i<cells.size(); i++) {
             cells[i]->callback(loadstamp_button_cb, (void*)loadfn);
         }
         loadstampmode = true;
     }
 }
 
-void loadstamp_button_cb(Fl_Widget* w, void* data)
-{
+void loadstamp_button_cb(Fl_Widget* w, void* data) {
     // Check for right-click. If there is right-click, cancel select.
-    if(Fl::event_button() == FL_RIGHT_MOUSE)
-    {
+    if(Fl::event_button() == FL_RIGHT_MOUSE) {
         // Set to cancel
         tempdata[TD_FX] = -2;
-    }
-    else
-    {
+    } else {
         Tile* t = (Tile*)w;
         tempdata[TD_STX] = t->getX();
         tempdata[TD_STY] = t->getY();
@@ -1083,14 +934,12 @@ void loadstamp_button_cb(Fl_Widget* w, void* data)
     load_stamp_cb(w, data);
 }
 
-void createrule_cb(Fl_Widget* w, void* data)
-{
+void createrule_cb(Fl_Widget* w, void* data) {
     // Parameter format: "RS NAME"
     // Ask for rulestring
     // If rulestring is already a parameter, parse it
     char* dt = (char*)data;
-    if(dt == 0)
-    {
+    if(dt == 0) {
         dt = (char*)fl_input("Please enter your rulestring (Survival/Reproduction)\nExample\nGame of Life 23/3");
         if(dt == NULL)
             return;
@@ -1100,8 +949,7 @@ void createrule_cb(Fl_Widget* w, void* data)
     bool spacegone = false;
     string sname = "";
     string srs = "";
-    for(int i=0; dt[i] != 0; i++)
-    {
+    for(int i=0; dt[i] != 0; i++) {
         if(spacegone)
             sname += dt[i];
         else
@@ -1110,8 +958,7 @@ void createrule_cb(Fl_Widget* w, void* data)
             spacegone = true;
     }
     // If there is no name, ask for one
-    if(sname == "")
-    {
+    if(sname == "") {
         char* name = (char*)fl_input("Please enter the name for the rulestring");
         if(name == NULL)
             return;
@@ -1120,8 +967,7 @@ void createrule_cb(Fl_Widget* w, void* data)
 
     // Parse it down
     vector<int> My_RS;
-    for(int i=0; srs.c_str()[i] != '\0'; i++)
-    {
+    for(int i=0; srs.c_str()[i] != '\0'; i++) {
         if(srs.c_str()[i] == '/')
             My_RS.push_back(-1);
         else if(srs.c_str()[i] >= '0' && srs.c_str()[i] <= '8')
@@ -1143,13 +989,11 @@ void createrule_cb(Fl_Widget* w, void* data)
         msgbox("Rulestring has been successfully parsed into program. Please select it in menu");
 }
 
-void about_cb(Fl_Widget* w, void* data)
-{
+void about_cb(Fl_Widget* w, void* data) {
     msgbox(string(string(App_Title) + string("\nVersion: ") + string(App_Version) + string("\n\n") + string(App_Info)).c_str());
 }
 
-void project_cb(Fl_Widget* w, void* data)
-{
+void project_cb(Fl_Widget* w, void* data) {
     // Asks for how much you want to project into the future
     char* ask = (char*)fl_input("Projection");
     if(ask == NULL)
@@ -1163,62 +1007,50 @@ void project_cb(Fl_Widget* w, void* data)
     // Project mode
     projectmode = true;
 
-    for(long l=0; l<times; l++)
-    {
+    for(long l=0; l<times; l++) {
         tick((void*)true);
     }
 
     projectmode = false;
 
     // Update display
-    for(int i=0; i<cells.size(); i++)
-    {
+    for(int i=0; i<cells.size(); i++) {
         cells[i]->update_display();
     }
 }
 
-void toggle_console_cb(Fl_Widget* w, void* data)
-{
-    if(extendedmode)
-    {
+void toggle_console_cb(Fl_Widget* w, void* data) {
+    if(extendedmode) {
         // If the window is extended, put it back
         window->size(window->w()-txteditw, window->h());
         extendedmode = false;
-    }
-    else
-    {
+    } else {
         // If the window is not extended, extend it
         window->size(window->w()+txteditw, window->h());
         extendedmode = true;
     }
 }
 
-void run_lua_script_cb(Fl_Widget* w, void* data)
-{
+void run_lua_script_cb(Fl_Widget* w, void* data) {
     // Get the buffer text
     char* script = scriptbuf->text();
 
     // Load into lua
     int error = luaL_loadbuffer(lh, script, string(script).size(), "buffer") || lua_pcall(lh, 0, 0, 0);
-    if(error)
-    {
+    if(error) {
         // Print any errors
         msgbox(lua_tostring(lh, -1), "Lua Script");
         lua_pop(lh, 1);
     }
 }
 
-void os_script_cb(Fl_Widget* w, void* data)
-{
+void os_script_cb(Fl_Widget* w, void* data) {
     char const* txt = NULL;
     // Check for open/save file operation (slightly different, so put them together)
-    if((long)data == 1)
-    {
+    if((long)data == 1) {
         // If save script
         txt = "Save Lua Script";
-    }
-    else
-    {
+    } else {
         // If load script
         txt = "Open Lua Script";
     }
@@ -1227,13 +1059,10 @@ void os_script_cb(Fl_Widget* w, void* data)
     if(fn == NULL)
         return;
 
-    if((long)data == 1)
-    {
+    if((long)data == 1) {
         // Save file
         scriptbuf->savefile(fn);
-    }
-    else
-    {
+    } else {
         // Load file
         scriptbuf->loadfile(fn);
     }

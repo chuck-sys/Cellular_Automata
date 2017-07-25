@@ -1,0 +1,2 @@
+flag = `fltk-config --cxxflags` -Ilua/include
+
