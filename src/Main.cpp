@@ -42,7 +42,7 @@ int cw = 10;                    // Cell width (px)
 int ch = 10;                    // Cell height (px)
 int menuh = 30;                 // Menubar height (px)
 int buttonh = 50;               // Button height (px)
-int shadefactor = 10;           // The Shade factor (for shading out selected squares
+int shadefactor = 10;           // The Shade factor (shading selected squares)
 double timeout = 0.1;           // The timeout between each tick (s)
 bool tutmode = false;           // Whether we are in tutorial mode or not
 
@@ -66,6 +66,8 @@ bool projectmode = false;
  * tempdata[4]: index for the corners selected (to put coordinates in correct places)
  * tempdata[5]: width of stamp
  * tempdata[6]: height of stamp
+ * tempdata[7]: x-coordinate for stamp
+ * tempdata[8]: y-coordinate for stamp
  */
 const int TD_FX = 0;    // Tempdata first x
 const int TD_FY = 1;    // Tempdata first y
@@ -195,7 +197,7 @@ int main(int argc, char* argv[]) {
     // Load the configuration file first
     int errs = luaL_loadfile(lh, "config.lua");        // Load file
     lh.report_errors(errs);                            // Report any errors in file
-    errs = lua_pcall(lh, 0, LUA_MULTRET, 0);        // Run file
+    errs = lua_pcall(lh, 0, LUA_MULTRET, 0);           // Run file
     lh.report_errors(errs);
 
     // Get all the numbers
