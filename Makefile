@@ -4,7 +4,6 @@ LD := g++
 LDFLAGS := `fltk-config --ldflags` -Llua/lib -llua
 LDSTATIC := `fltk-config --ldstaticflags` -Llua/lib -llua
 
-SRC := src/Tile.cpp src/Main.cpp src/LuaHelper.cpp
 OBJ := obj/Tile.o obj/LuaHelper.o obj/Main.o
 EXE := Cellular_Automata
 
@@ -18,9 +17,7 @@ clean:
 $(EXE): obj/ $(OBJ)
 	$(LD) $(OBJ) $(LDFLAGS) -o $@
 
-obj/Main.o: src/Main.cpp src/Rulestring.h
-obj/Tile.o: src/Tile.cpp src/Tile.h
-obj/LuaHelper.o: src/LuaHelper.cpp src/LuaHelper.h
+obj/Main.o: src/Main.cpp src/Rulestring.h src/Tempvars.h src/Utils.h
 
 obj/:
 	mkdir obj

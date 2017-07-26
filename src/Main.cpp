@@ -24,6 +24,7 @@
 #include "Tile.h"
 #include "Rulestring.h"
 #include "LuaHelper.h"
+#include "Tempvars.h"
 
 using namespace std;
 
@@ -56,29 +57,7 @@ bool extendedmode = false;
 bool selectmode = false;
 bool loadstampmode = false;
 bool projectmode = false;
-/*
- * TEMPDATA INFO
- *
- * tempdata[0]: x-coordinate for first corner
- * tempdata[1]: y-coordinate for first corner
- * tempdata[2]: x-coordinate for second corner
- * tempdata[3]: y-coordinate for second corner
- * tempdata[4]: index for the corners selected (to put coordinates in correct places)
- * tempdata[5]: width of stamp
- * tempdata[6]: height of stamp
- * tempdata[7]: x-coordinate for stamp
- * tempdata[8]: y-coordinate for stamp
- */
-const int TD_FX = 0;    // Tempdata first x
-const int TD_FY = 1;    // Tempdata first y
-const int TD_SX = 2;    // Tempdata second x
-const int TD_SY = 3;    // Tempdata second y
-const int TD_CI = 4;    // Tempdata corner index
-const int TD_SW = 5;    // Tempdata stamp width
-const int TD_SH = 6;    // Tempdata stamp height
-const int TD_STX = 7;   // Tempdata stamp x
-const int TD_STY = 8;   // Tempdata stamp y
-int tempdata[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1};
+Tempdata gdata;
 
 // Global FL variables
 Fl_Menu_Bar* menu;
@@ -266,11 +245,11 @@ void tick(void* step) {
     int tempfx, tempfy, tempsx, tempsy;
     tempfx = 0; tempfy = 0; tempsx = gw-1; tempsy = gh-1;
     bool tempcells[gw*gh];                          // Temporary array
-    if(selectmode && tempdata[TD_CI] == -1) {
-        tempfx = tempdata[TD_FX];
-        tempfy = tempdata[TD_FY];
-        tempsx = tempdata[TD_SX];
-        tempsy = tempdata[TD_SY];
+    if(selectmode && gdata.cornerIndex == -1) {
+        tempfx = gdata.firstCorner.x;
+        tempfy = gdata.firstCorner.y;
+        tempsx = gdata.secondCorner.x;
+        tempsy = gdata.secondCorner.y;
         for(int i=0; i<gw*gh; i++)
             tempcells[i] = cells[i]->getState();    // Initialize temperary array
     }
@@ -641,9 +620,9 @@ void change_rule_cb(Fl_Widget* w, void* data) {
 void reset_cb(Fl_Widget* w, void* data) {
     // Resets the tiles
     // If you are in select mode, only resets those that are selected
-    if(selectmode && tempdata[TD_CI] == -1) {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
+    if(selectmode && gdata.cornerIndex == -1) {
+        for(int y=gdata.firstCorner.y; y<=gdata.secondCorner.y; y++) {
+            for(int x=gdata.firstCorner.x; x<=gdata.secondCorner.x; x++) {
                 if(cells[y*gw+x]->getState()) {
                     cells[y*gw+x]->setState(false);
                     cells[y*gw+x]->update_color();
@@ -666,9 +645,9 @@ void reset_cb(Fl_Widget* w, void* data) {
 void randtiles_cb(Fl_Widget* w, void* data) {
     // Generate a random grid of tiles
     // in selected area or whole board
-    if(selectmode && tempdata[TD_CI] == -1) {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
+    if(selectmode && gdata.cornerIndex == -1) {
+        for(int y=gdata.firstCorner.y; y<=gdata.secondCorner.y; y++) {
+            for(int x=gdata.firstCorner.x; x<=gdata.secondCorner.x; x++) {
                 bool state = (bool)(rand() % 2);
                 if(cells[y*gw+x]->getState() != state) {
                     cells[y*gw+x]->setState(state);
@@ -707,24 +686,24 @@ void select_square_cb(Fl_Widget* w, void* data) {
         // Set selectmode
         selectmode = true;
         // Set index
-        tempdata[TD_CI] = 0;
+        gdata.cornerIndex = 0;
         // For tutorial mode
         if(tutmode)
             msgbox("Please select a corner.\nRight-click to cancel.");
-    } else if(tempdata[TD_FX] != -1 && tempdata[TD_FY] != -1 && tempdata[TD_SX] != -1 &&
-              tempdata[TD_SY] != -1 && tempdata[TD_CI] != -1 && selectmode) {
+    } else if(gdata.firstCorner.x != -1 && gdata.firstCorner.y != -1 && gdata.secondCorner.x != -1 &&
+              gdata.secondCorner.y != -1 && gdata.cornerIndex != -1 && selectmode) {
         // Test all the points first
         // Rearrange if neccessary
-        if(tempdata[TD_FX] > tempdata[TD_SX]) {
-            int temp = tempdata[TD_FX];
-            tempdata[TD_FX] = tempdata[TD_SX];
-            tempdata[TD_SX] = temp;
+        if(gdata.firstCorner.x > gdata.secondCorner.x) {
+            int temp = gdata.firstCorner.x;
+            gdata.firstCorner.x = gdata.secondCorner.x;
+            gdata.secondCorner.x = temp;
         }
-        if(tempdata[TD_FY] > tempdata[TD_SY])
+        if(gdata.firstCorner.y > gdata.secondCorner.y)
         {
-            int temp = tempdata[TD_FY];
-            tempdata[TD_FY] = tempdata[TD_SY];
-            tempdata[TD_SY] = temp;
+            int temp = gdata.firstCorner.y;
+            gdata.firstCorner.y = gdata.secondCorner.y;
+            gdata.secondCorner.y = temp;
         }
         // If you are done inputting the 2 corners,
         // put the stuff back
@@ -732,16 +711,16 @@ void select_square_cb(Fl_Widget* w, void* data) {
         for(int i=0; i<cells.size(); i++) {
             cells[i]->update_display();
         }
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
+        for(int y=gdata.firstCorner.y; y<=gdata.secondCorner.y; y++) {
+            for(int x=gdata.firstCorner.x; x<=gdata.secondCorner.x; x++) {
                 // Alternate coloring for the area
                 cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
                 cells[y*gw+x]->redraw();
             }
         }
         // Reset the index
-        tempdata[TD_CI] = -1;
-    } else if(tempdata[TD_FX] == -2) {
+        gdata.cornerIndex = -1;
+    } else if(gdata.firstCorner.x == -2) {
         // If you right-click (cancel operation)
         // reset buttons
         for(int i=0; i<cells.size(); i++) {
@@ -750,8 +729,7 @@ void select_square_cb(Fl_Widget* w, void* data) {
         }
         selectmode = false;
         // Reset the temporary data
-        for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
-            tempdata[i] = -1;
+        gdata.reset();
 
         // Tutorial mode
         if(tutmode)
@@ -763,24 +741,29 @@ void corner_cb(Fl_Widget* w, void* data) {
     // Check for right-click. If there is right-click, cancel select.
     if(Fl::event_button() == FL_RIGHT_MOUSE) {
         // Set to cancel
-        tempdata[TD_FX] = -2;
+        gdata.firstCorner.x = -2;
     } else {
         Tile* t = (Tile*)w;
         // Set the index
-        if(tempdata[TD_CI] == -1) {
-            tempdata[TD_CI] = 0;
+        if(gdata.cornerIndex == -1) {
+            gdata.cornerIndex = 0;
             // To allow selecting and selecting again
-            tempdata[TD_SY] = -1;
+            gdata.secondCorner.y = -1;
         }
         // Set the corners
-        tempdata[tempdata[TD_CI]] = t->getX();
-        tempdata[tempdata[TD_CI]+1] = t->getY();
-        tempdata[TD_CI] += 2;                            // Increment index
+        if (gdata.cornerIndex == 0) {
+            gdata.firstCorner.x = t->getX();
+            gdata.firstCorner.y = t->getY();
+        } else if (gdata.cornerIndex == 2) {
+            gdata.secondCorner.x = t->getX();
+            gdata.secondCorner.y = t->getY();
+        }
+        gdata.cornerIndex += 2;                            // Increment index
         // Colour it in
         t->color(t->color() % shadefactor);
         t->redraw();
         // Tutorial mode
-        if(tutmode && tempdata[TD_SY] == -1)
+        if(tutmode && gdata.secondCorner.y == -1)
             msgbox("Please select another corner.\nRight-click to cancel.");
     }
     select_square_cb(w, data);
@@ -789,9 +772,9 @@ void corner_cb(Fl_Widget* w, void* data) {
 void inverttiles_cb(Fl_Widget* w, void* data) {
     // Inverts all the tiles, if none are selected
     // You have to be in select mode. (Obviously)
-    if(selectmode && tempdata[TD_CI] == -1) {
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]; x++) {
+    if(selectmode && gdata.cornerIndex == -1) {
+        for(int y=gdata.firstCorner.y; y<=gdata.secondCorner.y; y++) {
+            for(int x=gdata.firstCorner.x; x<=gdata.secondCorner.x; x++) {
                 cells[y*gw+x]->setState(!cells[y*gw+x]->getState());
                 cells[y*gw+x]->update_color();
                 cells[y*gw+x]->color(cells[y*gw+x]->color() % shadefactor);
@@ -811,21 +794,21 @@ void inverttiles_cb(Fl_Widget* w, void* data) {
 
 void save_stamp_cb(Fl_Widget* w, void* data) {
     // Make sure that you have selected an area
-    if(selectmode && tempdata[TD_CI] == -1) {
+    if(selectmode && gdata.cornerIndex == -1) {
         // Ask for filename
         char* fn = fl_file_chooser("Save Stamp...", "Cellular Automata (*.ca)|All Files (*.*)", ".");
         if(fn == NULL)
             return;
 
-        int sw = tempdata[TD_SX]-tempdata[TD_FX];
-        int sh = tempdata[TD_SY]-tempdata[TD_FY];
+        int sw = gdata.secondCorner.x-gdata.firstCorner.x;
+        int sh = gdata.secondCorner.y-gdata.firstCorner.y;
         int i=0;
         char* stamp = new char[(sw+2)*(sh+1)];
         // Create the stamp to write to file
-        for(int y=tempdata[TD_FY]; y<=tempdata[TD_SY]; y++) {
-            for(int x=tempdata[TD_FX]; x<=tempdata[TD_SX]+1; x++) {
+        for(int y=gdata.firstCorner.y; y<=gdata.secondCorner.y; y++) {
+            for(int x=gdata.firstCorner.x; x<=gdata.secondCorner.x+1; x++) {
                 char pc = 'O';
-                if(x-tempdata[TD_FX] == sw+1) {
+                if(x-gdata.firstCorner.x == sw+1) {
                     pc = '\n';
                 } else if(cells[y*gw+x]->getState()) {
                     pc = 'X';
@@ -852,12 +835,11 @@ void load_stamp_cb(Fl_Widget* w, void* data) {
             msgbox("You are in select mode. Cannot load stamp.");
         return;
     }
-    if(tempdata[TD_FX] == -2) {
+    if(gdata.firstCorner.x == -2) {
         if(tutmode)
             msgbox("Cancelled");
         // Cancel
-        for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
-            tempdata[i] = -1;
+        gdata.reset();
         // Callback reset
         for(int i=0; i<cells.size(); i++)
             cells[i]->callback(tile_cb);
@@ -885,8 +867,8 @@ void load_stamp_cb(Fl_Widget* w, void* data) {
             else
                 sw++;
         }
-        tempdata[TD_SW] = sw/sh;
-        tempdata[TD_SH] = sh;
+        gdata.stamp.size.x = sw/sh;
+        gdata.stamp.size.y = sh;
         f.close();
     } catch(exception& ex) {
         msgbox(ex.what());
@@ -896,8 +878,8 @@ void load_stamp_cb(Fl_Widget* w, void* data) {
     if(loadstampmode) {
         // If it is directed here from a button
         int i=0;
-        for(int y=tempdata[TD_STY]; y<tempdata[TD_STY]+tempdata[TD_SH]; y++) {
-            for(int x=tempdata[TD_STX]; x<tempdata[TD_STX]+tempdata[TD_SW]; x++) {
+        for(int y=gdata.stamp.pos.y; y<gdata.stamp.pos.y+gdata.stamp.size.y; y++) {
+            for(int x=gdata.stamp.pos.x; x<gdata.stamp.pos.x+gdata.stamp.size.x; x++) {
                 cells[y*gw+x]->setState((filestring[i++] == 'X'? true:false));
                 cells[y*gw+x]->update_display();
 
@@ -908,8 +890,7 @@ void load_stamp_cb(Fl_Widget* w, void* data) {
         }
 
         // Reset everything
-        for(int i=0; i<sizeof(tempdata)/sizeof(int); i++)
-            tempdata[i] = -1;
+        gdata.reset();
         // Callback reset
         for(int i=0; i<cells.size(); i++)
             cells[i]->callback(tile_cb);
@@ -927,11 +908,11 @@ void loadstamp_button_cb(Fl_Widget* w, void* data) {
     // Check for right-click. If there is right-click, cancel select.
     if(Fl::event_button() == FL_RIGHT_MOUSE) {
         // Set to cancel
-        tempdata[TD_FX] = -2;
+        gdata.firstCorner.x = -2;
     } else {
         Tile* t = (Tile*)w;
-        tempdata[TD_STX] = t->getX();
-        tempdata[TD_STY] = t->getY();
+        gdata.stamp.pos.x = t->getX();
+        gdata.stamp.pos.y = t->getY();
     }
     load_stamp_cb(w, data);
 }
