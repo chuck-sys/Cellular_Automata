@@ -1,6 +1,12 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <vector>
+#include <map>
+#include <string>
+
+using namespace std;
+
 struct Vector2D {
     int x;
     int y;
@@ -20,5 +26,8 @@ struct Rect {
         size.reset();
     }
 };
+
+vector<map<string, vector<string>>> getStamps();
+int abs(int);
 
 #endif

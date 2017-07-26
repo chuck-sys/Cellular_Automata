@@ -4,7 +4,7 @@ LD := g++
 LDFLAGS := `fltk-config --ldflags` -Llua/lib -llua
 LDSTATIC := `fltk-config --ldstaticflags` -Llua/lib -llua
 
-OBJ := obj/Tile.o obj/LuaHelper.o obj/Main.o
+OBJ := obj/Tile.o obj/LuaHelper.o obj/Main.o obj/Utils.o
 EXE := Cellular_Automata
 
 .PHONY: all clean

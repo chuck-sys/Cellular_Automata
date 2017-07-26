@@ -23,13 +23,16 @@
 
 using namespace std;
 
-// All the rulesets
-vector<vector<int>> All_RS;
-
 vector<int> GameofLife_RS {2, 3, -1, 3};
 vector<int> HighLife_RS {2, 3, -1, 3, 6};
 vector<int> Maze_RS {1, 2, 3, 4, 5, -1, 3};
 vector<int> Mazectric_RS {1, 2, 3, 4, -1, 3};
 vector<int> Replicator_RS {1, 3, 5, 7, -1, 1, 3, 5, 7};
+
+// All the rulesets
+vector<vector<int>> All_RS = {
+    GameofLife_RS, HighLife_RS, Maze_RS, Mazectric_RS,
+    Replicator_RS
+};
 
 #endif /* SRC_RULESTRING_H_ */

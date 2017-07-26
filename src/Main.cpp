@@ -25,6 +25,7 @@
 #include "Rulestring.h"
 #include "LuaHelper.h"
 #include "Tempvars.h"
+#include "Utils.h"
 
 using namespace std;
 
@@ -71,8 +72,6 @@ Fl_Text_Editor* edit;
 void msgbox(const char*, const char*);
 void tick(void*);
 void get_config(Lua_Helper);
-int abs(int);
-void rs_init();
 void lua_funcinit();
 
 int lua_createrule(lua_State*);
@@ -167,9 +166,6 @@ Fl_Menu_Item Menu_Items[] = {
 };
 
 int main(int argc, char* argv[]) {
-    // Initialize rulestrings
-    rs_init();
-
     // Load functions to lua
     lua_funcinit();
 
@@ -366,24 +362,6 @@ void get_config(Lua_Helper L) {
     }
     // Successful no matter what because boolean value
     tutmode = L.get<bool>("tutmode");
-}
-
-inline int abs(int num) {
-    // The absolute value function
-    // Returns negated number if smaller than zero
-    if(num < 0)
-        return -num;
-    else
-        return num;
-}
-
-void rs_init() {
-    // Puts all the rulestrings into a vector of vectors
-    All_RS.push_back(GameofLife_RS);
-    All_RS.push_back(HighLife_RS);
-    All_RS.push_back(Maze_RS);
-    All_RS.push_back(Mazectric_RS);
-    All_RS.push_back(Replicator_RS);
 }
 
 void lua_funcinit() {
