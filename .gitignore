@@ -1,5 +1,2 @@
 # cmake files
 build/
-
-# You Complete Me plugin
-.ycm_extra_conf.pyc
