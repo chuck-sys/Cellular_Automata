@@ -27,7 +27,6 @@ struct Rect {
     }
 };
 
-vector<map<string, vector<string>>> getStamps();
 int abs(int);
 
 #endif
