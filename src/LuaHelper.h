@@ -1,10 +1,3 @@
-/*
- * LuaHelper.h
- *
- *  Created on: Dec 13, 2014
- *      Author: cheukyin699
- */
-
 #ifndef LUAHELPER_H_
 #define LUAHELPER_H_
 

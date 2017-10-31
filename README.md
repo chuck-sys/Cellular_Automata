@@ -1,37 +1,28 @@
-Cellular_Automata
-=================
+# Cellular_Automata
 
-
-**Cellular_Automata** is a program intended to experiment with different<br>
-types of cellular automata, such as *Game of Life*, *Maze*, *HighLife*, etc.<br>
-It gives you the opportunity to program it to do what you want it to do, and<br>
+**Cellular_Automata** is a program intended to experiment with different
+types of cellular automata, such as *Game of Life*, *Maze*, *HighLife*, etc.
+It gives you the opportunity to program it to do what you want it to do, and
 have more control over what you are doing.
 
-Version:	v1.1.0
+# Build
 
-Author:		Cheuk Yin Ng <cheukyin699@yahoo.com>
-
-
-
-Build
-=====
-
-To build **Cellular Automata**, you will need the following installed on your<br>
+To build **Cellular Automata**, you will need the following installed on your
 computer:
 
 - GNU gcc/g++ v4.8 or higher
-- GNU make v3.8 or higher
+- cmake
 - FLTK v1.3 or higher
+- Lua 5.1
 
-The correct LUA libraries are included.
+```sh
+mkdir build
+cd build
+cmake ..
+make
+```
 
-Do:
-
-	make clean
-	make
-
-Features
-========
+# Features
 
 **Cellular Automata** can:
 - Run a configuration of cells with custom rules

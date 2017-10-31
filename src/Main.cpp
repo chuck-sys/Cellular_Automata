@@ -1,10 +1,3 @@
-/*
- * Main.cpp
- *
- *  Created on: Nov 29, 2014
- *      Author: cheukyin699
- */
-
 #include <cstdlib>
 #include <string>
 #include <vector>

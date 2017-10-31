@@ -1,6 +1,4 @@
 /*
- * Rulestring.h
- *
  * Contains all the rules for the cellular automata
  *
  * Format:
@@ -11,9 +9,6 @@
  * If there are B amount of cells as a it's neighbour, then birth occurs
  *
  * S and B can both be a list of integers from 0-8
- *
- *  Created on: Nov 29, 2014
- *      Author: cheukyin699
  */
 
 #ifndef SRC_RULESTRING_H_

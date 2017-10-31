@@ -1,10 +1,3 @@
-/*
- * Tile.h
- *
- *  Created on: Nov 29, 2014
- *      Author: cheukyin699
- */
-
 #ifndef SRC_TILE_H_
 #define SRC_TILE_H_
 

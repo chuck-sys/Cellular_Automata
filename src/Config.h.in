@@ -5,5 +5,4 @@
 #define VERSION_MINOR @Cellular-Automata_VERSION_MINOR@
 #define VERSION_PATCH @Cellular-Automata_VERSION_PATCH@
 
-
 #endif

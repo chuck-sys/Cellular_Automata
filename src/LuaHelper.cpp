@@ -1,10 +1,3 @@
-/*
- * LuaHelper.cpp
- *
- *  Created on: Dec 13, 2014
- *      Author: cheukyin699
- */
-
 #include "LuaHelper.h"
 
 #include <iostream>
