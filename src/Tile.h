@@ -31,4 +31,4 @@ public:
     void setCoords(int x, int y) {coords[0] = x; coords[1] = y;};
 };
 
-#endif /* SRC_TILE_H_ */
+#endif

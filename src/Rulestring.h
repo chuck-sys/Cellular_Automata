@@ -30,4 +30,4 @@ vector<vector<int>> All_RS = {
     Replicator_RS
 };
 
-#endif /* SRC_RULESTRING_H_ */
+#endif

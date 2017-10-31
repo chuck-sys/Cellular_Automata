@@ -43,4 +43,4 @@ public:
     void close();
 };
 
-#endif /* LUAHELPER_H_ */
+#endif
